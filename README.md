@@ -30,8 +30,9 @@ firma y las mismas credenciales. Verificado contra la beta real de SUNAT: una fa
 emitida desde aquí vuelve con *"ha sido aceptada"* y su CDR.
 
 > Es un solo fichero, sin dependencias ni instalación. Funciona abriéndolo con doble clic
-> o servido por HTTP. La instancia de InkFact tiene que tener `CORS_ORIGINS` configurado
-> para admitir llamadas desde un navegador.
+> o servido por HTTP, en escritorio y en el móvil, en claro y en oscuro. La instancia de
+> InkFact tiene que tener `CORS_ORIGINS` configurado para admitir llamadas desde un
+> navegador.
 
 ## Los clientes de ejemplo
 

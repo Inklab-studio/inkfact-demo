@@ -2,212 +2,394 @@
 <html lang="es">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>InkFact · demo</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<title>InkFact · demo en vivo</title>
 <style>
-  :root {
-    --fondo: #f4f5f7; --hoja: #fff; --hundido: #f0f2f5; --tinta: #16191f; --tinta-2: #5a6170; --tinta-3: #8b92a0;
-    --linea: #e2e5ea; --marca: #1d4ed8; --marca-suave: #eef2ff; --ok: #15803d; --ok-suave: #ecfdf3;
-    --aviso: #b45309; --aviso-suave: #fffbeb; --mal: #b91c1c; --mal-suave: #fef2f2;
-    --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; --r: 10px;
-  }
-  * { box-sizing: border-box; }
-  body { margin: 0; background: var(--fondo); color: var(--tinta); font: 14px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; }
-  header { background: var(--hoja); border-bottom: 1px solid var(--linea); }
-  .barra { max-width: 1040px; margin: 0 auto; padding: 14px 20px; display: flex; align-items: center; gap: 14px; }
-  .barra h1 { font-size: 18px; margin: 0; } .barra h1 small { font-weight: 400; color: var(--tinta-2); margin-left: 6px; }
-  .barra .estado-con { margin-left: auto; font-size: 13px; color: var(--tinta-2); display: flex; align-items: center; gap: 8px; }
-  .punto { width: 9px; height: 9px; border-radius: 50%; background: var(--tinta-3); display: inline-block; }
-  .punto.ok { background: var(--ok); }
-  main { max-width: 1040px; margin: 0 auto; padding: 22px 20px 60px; display: grid; gap: 18px; }
-  .hoja { background: var(--hoja); border: 1px solid var(--linea); border-radius: var(--r); padding: 20px 22px; }
-  .hoja h2 { font-size: 15px; margin: 0 0 4px; display: flex; align-items: center; gap: 10px; }
-  .hoja h2 .n { width: 24px; height: 24px; border-radius: 50%; background: var(--marca); color: #fff; font-size: 12px; display: inline-flex; align-items: center; justify-content: center; }
-  .hoja p.sub { margin: 0 0 14px; color: var(--tinta-2); font-size: 13px; }
-  label { display: block; font-size: 12px; color: var(--tinta-2); margin: 10px 0 4px; }
-  input, select { width: 100%; height: 36px; padding: 0 10px; border: 1px solid var(--linea); border-radius: 7px; font: inherit; background: #fff; }
-  input.mono { font-family: var(--mono); font-size: 13px; }
-  input:focus, select:focus { outline: 2px solid var(--marca); outline-offset: 1px; border-color: transparent; }
-  input:disabled, select:disabled, button:disabled { opacity: .55; cursor: default; }
-  .g2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; } .g3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
-  @media (max-width: 700px) { .g2, .g3 { grid-template-columns: 1fr; } }
-  button { height: 36px; padding: 0 16px; border: 0; border-radius: 7px; background: var(--marca); color: #fff; font: inherit; font-weight: 600; cursor: pointer; }
-  button.sec { background: var(--marca-suave); color: var(--marca); } button.chico { height: 30px; padding: 0 11px; font-size: 12.5px; }
-  button.peligro { background: var(--mal-suave); color: var(--mal); }
-  .acciones { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 14px; align-items: center; }
-  .aviso { padding: 10px 13px; border-radius: 7px; margin-top: 12px; font-size: 13px; display: none; }
-  .aviso.ok { display: block; background: var(--ok-suave); color: var(--ok); } .aviso.mal { display: block; background: var(--mal-suave); color: var(--mal); } .aviso.info { display: block; background: var(--marca-suave); color: var(--marca); }
-  table { width: 100%; border-collapse: collapse; font-size: 13px; }
-  th { text-align: left; font-weight: 600; color: var(--tinta-2); font-size: 12px; padding: 8px 8px; border-bottom: 1px solid var(--linea); }
-  td { padding: 7px 8px; border-bottom: 1px solid var(--linea); vertical-align: middle; }
-  td input, td select { height: 32px; }
-  td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
-  td input.num { text-align: right; }
-  .mono { font-family: var(--mono); }
-  .totales { display: flex; gap: 22px; justify-content: flex-end; flex-wrap: wrap; margin-top: 12px; font-size: 13px; color: var(--tinta-2); }
-  .totales b { color: var(--tinta); font-variant-numeric: tabular-nums; } .totales .grande b { font-size: 17px; }
-  .pill { display: inline-block; padding: 2px 9px; border-radius: 999px; font-size: 11.5px; font-weight: 600; background: var(--hundido); color: var(--tinta-2); white-space: nowrap; }
-  .pill.accepted, .pill.observed { background: var(--ok-suave); color: var(--ok); }
-  .pill.rejected, .pill.error { background: var(--mal-suave); color: var(--mal); }
-  .pill.queued, .pill.sent, .pill.signed, .pill.numbered, .pill.pending_summary, .pill.summarized, .pill.contingency { background: var(--aviso-suave); color: var(--aviso); }
-  .pill.voided { background: var(--hundido); color: var(--tinta-3); text-decoration: line-through; }
-  .linea-tiempo { display: flex; gap: 6px; flex-wrap: wrap; margin: 12px 0 4px; }
-  .paso { padding: 5px 11px; border-radius: 7px; background: var(--hundido); color: var(--tinta-3); font-size: 12px; font-weight: 600; }
-  .paso.hecho { background: var(--ok-suave); color: var(--ok); } .paso.actual { background: var(--marca); color: #fff; } .paso.mal { background: var(--mal-suave); color: var(--mal); }
-  dl { display: grid; grid-template-columns: 150px 1fr; gap: 5px 12px; margin: 10px 0 0; font-size: 13px; } dt { color: var(--tinta-2); } dd { margin: 0; font-family: var(--mono); font-size: 12.5px; word-break: break-all; }
-  pre { background: var(--hundido); border: 1px solid var(--linea); border-radius: 7px; padding: 11px; font: 12px/1.5 var(--mono); overflow: auto; max-height: 300px; margin: 6px 0 0; white-space: pre; }
-  details summary { cursor: pointer; color: var(--marca); font-size: 13px; font-weight: 600; margin-top: 12px; }
-  .nota { color: var(--tinta-2); font-size: 12.5px; margin: 10px 0 0; }
-  .vacio { color: var(--tinta-3); font-size: 13px; padding: 14px 0; }
-  .velo { position: fixed; inset: 0; background: rgba(20,24,32,.45); display: flex; align-items: center; justify-content: center; z-index: 50; }
-  .modal { background: var(--hoja); border-radius: 12px; padding: 20px 22px; width: min(560px, 92vw); box-shadow: 0 20px 60px rgba(0,0,0,.25); }
-  .modal h3 { margin: 0 0 8px; font-size: 16px; }
-  footer { max-width: 1040px; margin: 0 auto; padding: 0 20px 40px; color: var(--tinta-2); font-size: 12.5px; } footer a { color: var(--marca); }
-  [hidden] { display: none !important; }
+/* ================================================================== tokens
+   Los mismos de /emitir y /panel: lo que ve el prospecto aquí es lo que se lleva. */
+:root {
+  color-scheme: light;
+  --ground: oklch(0.971 0.004 250); --sheet: oklch(1 0 0); --panel: oklch(0.987 0.004 250); --sunken: oklch(0.963 0.005 250);
+  --ink: oklch(0.215 0.017 258); --ink-2: oklch(0.452 0.014 258); --ink-3: oklch(0.542 0.013 258);
+  --line: oklch(0.891 0.007 250); --line-2: oklch(0.942 0.005 250);
+  --brand: oklch(0.435 0.152 258); --brand-2: oklch(0.368 0.152 258); --brand-ink: oklch(0.995 0 0); --brand-faint: oklch(0.953 0.026 258);
+  --focus: oklch(0.58 0.17 256);
+  --ok: oklch(0.472 0.118 158); --ok-faint: oklch(0.955 0.032 158);
+  --warn: oklch(0.492 0.108 68); --warn-faint: oklch(0.958 0.040 78);
+  --bad: oklch(0.487 0.188 26); --bad-faint: oklch(0.959 0.030 26);
+  --sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+  --t-xs: .6875rem; --t-sm: .8125rem; --t-md: .9375rem; --t-lg: 1.0625rem; --t-xl: 1.375rem; --t-2xl: 1.75rem;
+  --r-hoja: 12px; --r-ctl: 8px; --alto-ctl: 44px;
+  --dur: 180ms; --ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --z-pegado: 10; --z-velo: 60;
+}
+/* El JS decide el tema al cargar (lo guardado, o lo que pida el sistema) y lo pone en
+   data-theme. Una sola fuente de verdad: sin media query aparte que pueda discrepar. */
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --ground: oklch(0.181 0.012 258); --sheet: oklch(0.224 0.014 258); --panel: oklch(0.203 0.013 258); --sunken: oklch(0.246 0.015 258);
+  --ink: oklch(0.948 0.006 258); --ink-2: oklch(0.758 0.013 258); --ink-3: oklch(0.655 0.014 258);
+  --line: oklch(0.315 0.015 258); --line-2: oklch(0.266 0.013 258);
+  --brand: oklch(0.705 0.145 258); --brand-2: oklch(0.782 0.132 258); --brand-ink: oklch(0.166 0.020 258); --brand-faint: oklch(0.288 0.056 258);
+  --focus: oklch(0.725 0.150 256);
+  --ok: oklch(0.752 0.128 158); --ok-faint: oklch(0.270 0.046 158);
+  --warn: oklch(0.788 0.112 78); --warn-faint: oklch(0.281 0.042 78);
+  --bad: oklch(0.722 0.148 26); --bad-faint: oklch(0.290 0.052 26);
+}
+
+/* ================================================================== base */
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body { margin: 0; background: var(--ground); color: var(--ink); font: var(--t-md)/1.5 var(--sans); min-height: 100dvh; }
+h1, h2, h3 { margin: 0; text-wrap: balance; font-weight: 600; }
+p { margin: 0; }
+.mono { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+.tenue { color: var(--ink-2); font-size: var(--t-sm); }
+[hidden] { display: none !important; }
+:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; border-radius: 4px; }
+
+/* ================================================================== cabecera */
+.cab { position: sticky; top: 0; z-index: var(--z-pegado); background: color-mix(in oklch, var(--sheet) 92%, transparent); backdrop-filter: blur(10px); border-bottom: 1px solid var(--line); }
+.cab-in { max-width: 1180px; margin: 0 auto; padding: 0 20px; height: 56px; display: flex; align-items: center; gap: 14px; }
+.marca { display: flex; align-items: center; gap: 9px; font-size: var(--t-lg); font-weight: 600; letter-spacing: -0.01em; }
+.marca i { width: 12px; height: 12px; background: var(--brand); border-radius: 3px 3px 3px 9px; transform: rotate(-45deg); display: inline-block; }
+.marca small { font-weight: 400; color: var(--ink-3); font-size: var(--t-sm); margin-left: 2px; }
+.con { margin-left: auto; display: flex; align-items: center; gap: 8px; font-size: var(--t-sm); color: var(--ink-2); }
+.con b { width: 8px; height: 8px; border-radius: 50%; background: var(--ink-3); display: inline-block; transition: background var(--dur) var(--ease); }
+.con.ok b { background: var(--ok); box-shadow: 0 0 0 3px var(--ok-faint); }
+.tema { height: 34px; width: 34px; padding: 0; border: 1px solid var(--line); background: var(--sheet); color: var(--ink-2); border-radius: var(--r-ctl); cursor: pointer; font-size: 15px; display: inline-flex; align-items: center; justify-content: center; }
+.tema:hover { background: var(--sunken); }
+
+/* ================================================================== layout */
+main { max-width: 1180px; margin: 0 auto; padding: 20px 20px 80px; }
+.intro { margin: 8px 0 22px; max-width: 68ch; }
+.intro h1 { font-size: var(--t-2xl); letter-spacing: -0.02em; margin-bottom: 6px; }
+.intro p { color: var(--ink-2); }
+.taller { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: 20px; align-items: start; }
+@media (max-width: 940px) { .taller { grid-template-columns: 1fr; } }
+.col-der { position: sticky; top: 72px; }
+@media (max-width: 940px) { .col-der { position: static; } }
+
+/* ================================================================== hojas */
+.hoja { background: var(--sheet); border: 1px solid var(--line); border-radius: var(--r-hoja); padding: 20px; }
+.hoja + .hoja { margin-top: 16px; }
+.hoja h2 { font-size: var(--t-lg); margin-bottom: 2px; }
+.hoja > .tenue { margin-bottom: 14px; display: block; }
+.hoja.plegada > :not(h2):not(.resumen-plegado) { display: none; }
+.resumen-plegado { display: none; margin-top: 6px; }
+.hoja.plegada .resumen-plegado { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.hoja.plegada h2 { cursor: pointer; }
+.hoja.plegada h2::after { content: "cambiar"; float: right; font-size: var(--t-xs); font-weight: 500; color: var(--brand); }
+
+/* ================================================================== formularios */
+label { display: block; font-size: var(--t-xs); font-weight: 500; color: var(--ink-2); margin: 12px 0 5px; letter-spacing: .01em; }
+input, select { width: 100%; height: var(--alto-ctl); padding: 0 12px; border: 1px solid var(--line); border-radius: var(--r-ctl); font: inherit; color: var(--ink); background: var(--sheet); transition: border-color var(--dur) var(--ease), box-shadow var(--dur) var(--ease); }
+input::placeholder { color: var(--ink-3); }
+input:hover, select:hover { border-color: color-mix(in oklch, var(--line) 40%, var(--ink-3)); }
+input:focus, select:focus { outline: none; border-color: var(--focus); box-shadow: 0 0 0 3px var(--brand-faint); }
+input:disabled, select:disabled { background: var(--sunken); color: var(--ink-3); }
+input.mono { font-family: var(--mono); font-size: var(--t-sm); }
+.g2 { display: grid; grid-template-columns: 1fr 1fr; gap: 0 12px; }
+.g3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0 12px; }
+@media (max-width: 640px) { .g2, .g3 { grid-template-columns: 1fr; } }
+
+button { height: var(--alto-ctl); padding: 0 18px; border: 0; border-radius: var(--r-ctl); background: var(--brand); color: var(--brand-ink); font: inherit; font-weight: 600; cursor: pointer; transition: background var(--dur) var(--ease), transform var(--dur) var(--ease), opacity var(--dur); white-space: nowrap; }
+button:hover { background: var(--brand-2); }
+button:active { transform: translateY(1px); }
+button:disabled { opacity: .5; cursor: default; transform: none; }
+button.sec { background: var(--brand-faint); color: var(--brand); }
+button.sec:hover { background: color-mix(in oklch, var(--brand-faint) 80%, var(--brand)); }
+button.plano { background: transparent; color: var(--brand); padding: 0 10px; }
+button.plano:hover { background: var(--brand-faint); }
+button.peligro { background: var(--bad-faint); color: var(--bad); }
+button.chico { height: 32px; padding: 0 12px; font-size: var(--t-sm); font-weight: 500; }
+button.cargando { position: relative; color: transparent; }
+button.cargando::after { content: ""; position: absolute; inset: 0; margin: auto; width: 16px; height: 16px; border: 2px solid currentColor; border-color: var(--brand-ink) transparent var(--brand-ink) transparent; border-radius: 50%; animation: girar .8s linear infinite; }
+button.sec.cargando::after, button.plano.cargando::after { border-color: var(--brand) transparent var(--brand) transparent; }
+@keyframes girar { to { transform: rotate(360deg); } }
+.acciones { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 16px; align-items: center; }
+
+.aviso { padding: 11px 14px; border-radius: var(--r-ctl); margin-top: 12px; font-size: var(--t-sm); display: none; line-height: 1.45; }
+.aviso.ok { display: block; background: var(--ok-faint); color: var(--ok); }
+.aviso.mal { display: block; background: var(--bad-faint); color: var(--bad); }
+.aviso.info { display: block; background: var(--brand-faint); color: var(--brand); }
+
+/* ================================================================== líneas */
+.lineas { margin-top: 6px; border: 1px solid var(--line); border-radius: var(--r-ctl); overflow: hidden; }
+.linea { display: grid; grid-template-columns: minmax(0, 1fr) 76px 108px 150px 84px 36px; gap: 6px; align-items: center; padding: 8px 10px; border-bottom: 1px solid var(--line-2); }
+.linea:last-child { border-bottom: 0; }
+.linea input, .linea select { height: 36px; font-size: var(--t-sm); }
+.linea .valor { text-align: right; font-family: var(--mono); font-variant-numeric: tabular-nums; font-size: var(--t-sm); color: var(--ink-2); padding-right: 4px; }
+.linea .quitar { height: 32px; width: 32px; padding: 0; background: transparent; color: var(--ink-3); font-size: 18px; line-height: 1; }
+.linea .quitar:hover { background: var(--bad-faint); color: var(--bad); }
+.lineas-cab { display: grid; grid-template-columns: minmax(0, 1fr) 76px 108px 150px 84px 36px; gap: 6px; padding: 8px 10px 6px; font-size: var(--t-xs); font-weight: 500; color: var(--ink-2); background: var(--panel); border-bottom: 1px solid var(--line); }
+.lineas-cab .r { text-align: right; }
+@media (max-width: 640px) {
+  .lineas-cab { display: none; }
+  .linea { grid-template-columns: 1fr 1fr; grid-template-areas: "desc desc" "cant val" "af af" "tot quitar"; padding: 12px 10px; }
+  .linea > :nth-child(1) { grid-area: desc; } .linea > :nth-child(2) { grid-area: cant; } .linea > :nth-child(3) { grid-area: val; }
+  .linea > :nth-child(4) { grid-area: af; } .linea > :nth-child(5) { grid-area: tot; text-align: left; } .linea > :nth-child(6) { grid-area: quitar; justify-self: end; }
+}
+.totales { display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 8px 14px; margin-top: 14px; padding: 12px 14px; background: var(--panel); border-radius: var(--r-ctl); }
+.totales div { font-size: var(--t-xs); color: var(--ink-2); }
+.totales b { display: block; font-family: var(--mono); font-variant-numeric: tabular-nums; font-size: var(--t-md); color: var(--ink); font-weight: 500; margin-top: 1px; }
+.totales .grande b { font-size: var(--t-xl); font-weight: 600; }
+
+/* ================================================================== la barra pegada en móvil */
+.barra-emitir { display: none; }
+@media (max-width: 940px) {
+  .barra-emitir { display: flex; position: fixed; left: 0; right: 0; bottom: 0; z-index: var(--z-pegado); padding: 10px 16px calc(10px + env(safe-area-inset-bottom)); background: color-mix(in oklch, var(--sheet) 94%, transparent); backdrop-filter: blur(10px); border-top: 1px solid var(--line); align-items: center; gap: 12px; }
+  .barra-emitir .tot { font-family: var(--mono); font-size: var(--t-lg); font-weight: 600; }
+  .barra-emitir button { margin-left: auto; }
+}
+
+/* ================================================================== el pipeline */
+.pipe { display: grid; grid-template-columns: repeat(5, 1fr); gap: 0; margin: 14px 0 6px; position: relative; }
+.paso { display: flex; flex-direction: column; align-items: center; gap: 7px; text-align: center; font-size: var(--t-xs); color: var(--ink-3); position: relative; padding: 0 2px; }
+.paso i { width: 26px; height: 26px; border-radius: 50%; border: 2px solid var(--line); background: var(--sheet); display: inline-flex; align-items: center; justify-content: center; font-style: normal; font-size: 12px; font-weight: 600; transition: border-color var(--dur) var(--ease), background var(--dur) var(--ease), color var(--dur) var(--ease); position: relative; z-index: 1; }
+.paso::before { content: ""; position: absolute; top: 12px; left: -50%; right: 50%; height: 2px; background: var(--line); z-index: 0; }
+.paso:first-child::before { display: none; }
+.paso.hecho i { border-color: var(--ok); background: var(--ok); color: var(--brand-ink); }
+.paso.hecho { color: var(--ink-2); }
+.paso.hecho::before { background: var(--ok); }
+.paso.actual i { border-color: var(--brand); background: var(--brand); color: var(--brand-ink); animation: latir 1.6s var(--ease) infinite; }
+.paso.actual { color: var(--brand); font-weight: 600; }
+.paso.actual::before { background: var(--ok); }
+.paso.mal i { border-color: var(--bad); background: var(--bad); color: var(--brand-ink); }
+.paso.mal { color: var(--bad); font-weight: 600; }
+.paso.mal::before { background: var(--bad); }
+@keyframes latir { 0%, 100% { box-shadow: 0 0 0 0 var(--brand-faint); } 50% { box-shadow: 0 0 0 6px var(--brand-faint); } }
+
+/* ================================================================== resultado */
+.numero-grande { font-family: var(--mono); font-size: var(--t-2xl); font-weight: 600; letter-spacing: -0.01em; line-height: 1.1; margin: 4px 0 2px; }
+.estado { display: inline-flex; align-items: center; gap: 6px; padding: 3px 10px 3px 8px; border-radius: 999px; font-size: var(--t-xs); font-weight: 600; background: var(--sunken); color: var(--ink-2); white-space: nowrap; }
+.estado::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+.estado.accepted, .estado.observed { background: var(--ok-faint); color: var(--ok); }
+.estado.rejected, .estado.error { background: var(--bad-faint); color: var(--bad); }
+.estado.queued, .estado.sent, .estado.signed, .estado.numbered, .estado.pending_summary, .estado.summarized, .estado.contingency { background: var(--warn-faint); color: var(--warn); }
+.estado.voided { background: var(--sunken); color: var(--ink-3); }
+.datos { display: grid; grid-template-columns: 128px minmax(0, 1fr); gap: 6px 12px; margin: 14px 0 0; font-size: var(--t-sm); }
+.datos dt { color: var(--ink-2); } .datos dd { margin: 0; font-family: var(--mono); font-size: var(--t-sm); word-break: break-all; }
+.vista { margin-top: 14px; border: 1px solid var(--line); border-radius: var(--r-ctl); overflow: hidden; background: var(--sunken); }
+.vista iframe { display: block; width: 100%; height: 420px; border: 0; background: #fff; }
+.vista-cab { display: flex; align-items: center; gap: 8px; padding: 8px 12px; font-size: var(--t-xs); color: var(--ink-2); background: var(--panel); border-bottom: 1px solid var(--line); }
+.vista-cab button { margin-left: auto; }
+/* En un telefono el visor de PDF incrustado o no existe o pinta un bloque negro. Ahi se
+   ofrece abrirlo, que es lo que el navegador del movil si sabe hacer bien. */
+@media (max-width: 640px) {
+  .vista iframe { display: none; }
+  .vista-cab { flex-direction: column; align-items: stretch; gap: 10px; padding: 14px; border-bottom: 0; text-align: center; }
+  .vista-cab button { margin: 0; height: var(--alto-ctl); background: var(--brand); color: var(--brand-ink); font-weight: 600; }
+}
+.vacio { padding: 26px 18px; text-align: center; color: var(--ink-2); font-size: var(--t-sm); }
+.vacio b { display: block; color: var(--ink); font-size: var(--t-md); margin-bottom: 4px; }
+.aparece { animation: aparecer .32s var(--ease) both; }
+@keyframes aparecer { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+details summary { cursor: pointer; color: var(--brand); font-size: var(--t-sm); font-weight: 500; margin-top: 14px; list-style: none; }
+details summary::before { content: "▸ "; } details[open] summary::before { content: "▾ "; }
+pre { background: var(--sunken); border: 1px solid var(--line); border-radius: var(--r-ctl); padding: 11px; font: var(--t-xs)/1.5 var(--mono); overflow: auto; max-height: 280px; margin: 6px 0 0; white-space: pre; color: var(--ink); }
+
+/* ================================================================== libro */
+.libro { margin-top: 20px; }
+.libro-cab { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+.libro-cab h2 { font-size: var(--t-lg); } .libro-cab .tenue { margin: 0; }
+.libro-cab button { margin-left: auto; }
+table { width: 100%; border-collapse: collapse; font-size: var(--t-sm); }
+th { text-align: left; font-weight: 500; font-size: var(--t-xs); color: var(--ink-2); padding: 8px 10px; border-bottom: 1px solid var(--line); background: var(--panel); }
+td { padding: 9px 10px; border-bottom: 1px solid var(--line-2); vertical-align: middle; }
+tr:last-child td { border-bottom: 0; }
+tbody tr:hover td { background: var(--panel); }
+td.num, th.num { text-align: right; }
+.tabla-w { border: 1px solid var(--line); border-radius: var(--r-ctl); overflow: hidden; }
+.tabla-scroll { overflow-x: auto; }
+td .acciones { margin: 0; gap: 4px; flex-wrap: nowrap; justify-content: flex-end; }
+.fila-nueva td { animation: destello 1.6s var(--ease); }
+@keyframes destello { from { background: var(--ok-faint); } to { background: transparent; } }
+
+/* ================================================================== modal */
+.velo { position: fixed; inset: 0; background: color-mix(in oklch, var(--ink) 45%, transparent); display: flex; align-items: center; justify-content: center; z-index: var(--z-velo); padding: 20px; animation: aparecer .2s var(--ease); }
+.modal { background: var(--sheet); border-radius: var(--r-hoja); padding: 20px 22px; width: min(600px, 100%); max-height: 90dvh; overflow: auto; box-shadow: 0 24px 60px color-mix(in oklch, var(--ink) 30%, transparent); }
+.modal h3 { font-size: var(--t-lg); margin-bottom: 6px; }
+
+footer { max-width: 1180px; margin: 0 auto; padding: 0 20px 40px; color: var(--ink-2); font-size: var(--t-sm); } footer a { color: var(--brand); }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+}
 </style>
 </head>
 <body>
-<header><div class="barra">
-  <h1>InkFact <small>demo en vivo</small></h1>
-  <div class="estado-con"><span class="punto" id="punto"></span><span id="con-texto">Sin conectar</span></div>
+
+<header class="cab"><div class="cab-in">
+  <div class="marca"><i></i>InkFact<small>demo en vivo</small></div>
+  <div class="con" id="con"><b></b><span id="con-texto">Sin conectar</span></div>
+  <button class="tema" id="tema" title="Cambiar tema" aria-label="Cambiar tema">◐</button>
 </div></header>
 
 <main>
-  <!-- 1 · CONEXIÓN -->
-  <section class="hoja" id="s-conexion">
-    <h2><span class="n">1</span> Conectar con InkFact</h2>
-    <p class="sub">La misma API y las mismas credenciales que usaría tu ERP. Nada de lo que escribas aquí sale de esta pestaña.</p>
-    <div class="g3">
-      <div><label for="url">URL del servicio</label><input id="url" class="mono" value="http://localhost:3010" spellcheck="false"></div>
-      <div><label for="key">X-Api-Key</label><input id="key" class="mono" placeholder="ik_beta_…" spellcheck="false" autocomplete="off"></div>
-      <div><label for="secreto">Secreto HMAC</label><input id="secreto" class="mono" type="password" placeholder="el que salió al crear la key" autocomplete="off"></div>
-    </div>
-    <div class="acciones">
-      <button id="conectar">Conectar</button>
-      <span class="nota" id="con-nota" style="margin:0"></span>
-    </div>
-    <div id="con-aviso" class="aviso"></div>
-  </section>
+  <div class="intro">
+    <h1>Emite un comprobante de verdad. Ahora.</h1>
+    <p>Esta página habla con una instancia de InkFact igual que lo haría tu ERP: misma API, misma firma, mismas credenciales. Lo que emitas aquí va a la beta de SUNAT y vuelve con su CDR.</p>
+  </div>
 
-  <!-- 2 · EMITIR -->
-  <section class="hoja" id="s-emitir" hidden>
-    <h2><span class="n">2</span> Emitir un comprobante</h2>
-    <p class="sub">Los importes van <b>sin IGV</b>. El servicio calcula impuestos, totales e importe en letras, genera el XML, lo firma y lo manda a SUNAT.</p>
-    <div class="g3">
-      <div><label for="emisor">Emisor</label><select id="emisor"></select></div>
-      <div><label for="tipo">Tipo</label><select id="tipo"><option value="boleta">Boleta (B001)</option><option value="factura">Factura (F001)</option></select></div>
-      <div><label for="moneda">Moneda</label><select id="moneda"><option value="PEN">Soles (PEN)</option><option value="USD">Dólares (USD)</option></select></div>
-    </div>
-    <div class="g3">
-      <div><label id="l-doc" for="cli-doc">DNI del cliente</label><input id="cli-doc" class="mono" value="45678912" spellcheck="false"></div>
-      <div><label for="cli-nombre">Nombre / razón social</label><input id="cli-nombre" value="CLIENTE DE PRUEBA"></div>
-      <div id="w-dir"><label for="cli-dir">Dirección</label><input id="cli-dir" placeholder="obligatoria en factura"></div>
+  <div class="taller">
+    <!-- ============================================================ IZQUIERDA: lo que mandas -->
+    <div class="col-izq">
+      <section class="hoja" id="s-con">
+        <h2>Conectar</h2>
+        <span class="tenue">Nada de lo que escribas sale de esta pestaña. El secreto nunca viaja: solo firma.</span>
+        <div class="resumen-plegado"><span class="mono tenue" id="pl-url"></span><span class="estado accepted" id="pl-alcance"></span></div>
+        <label for="url">URL del servicio</label>
+        <input id="url" class="mono" value="http://localhost:3010" spellcheck="false" autocomplete="off">
+        <div class="g2">
+          <div><label for="key">X-Api-Key</label><input id="key" class="mono" placeholder="ik_beta_…" spellcheck="false" autocomplete="off"></div>
+          <div><label for="secreto">Secreto HMAC</label><input id="secreto" class="mono" type="password" placeholder="el que salió al crear la key" autocomplete="off"></div>
+        </div>
+        <div class="acciones"><button id="conectar">Conectar</button><span class="tenue" id="con-nota"></span></div>
+        <div id="con-aviso" class="aviso"></div>
+      </section>
+
+      <section class="hoja" id="s-emitir" hidden>
+        <h2>Armar el comprobante</h2>
+        <span class="tenue">Los importes van sin IGV. Impuestos, totales, importe en letras, XML y firma los pone el servicio.</span>
+        <div class="g3">
+          <div><label for="emisor">Emisor</label><select id="emisor"></select></div>
+          <div><label for="tipo">Tipo</label><select id="tipo"><option value="boleta">Boleta · B001</option><option value="factura">Factura · F001</option></select></div>
+          <div><label for="moneda">Moneda</label><select id="moneda"><option value="PEN">Soles · PEN</option><option value="USD">Dólares · USD</option></select></div>
+        </div>
+        <div class="g3">
+          <div><label id="l-doc" for="cli-doc">DNI del cliente</label><input id="cli-doc" class="mono" value="45678912" spellcheck="false"></div>
+          <div><label for="cli-nombre">Nombre / razón social</label><input id="cli-nombre" value="CLIENTE DE PRUEBA"></div>
+          <div id="w-dir"><label for="cli-dir">Dirección</label><input id="cli-dir" placeholder="obligatoria en factura"></div>
+        </div>
+
+        <label style="margin-top:16px">Líneas</label>
+        <div class="lineas">
+          <div class="lineas-cab"><span>Descripción</span><span class="r">Cant.</span><span class="r">Valor unit.</span><span>Afectación IGV</span><span class="r">Valor</span><span></span></div>
+          <div id="lineas"></div>
+        </div>
+        <div class="acciones" style="margin-top:8px"><button class="plano chico" id="add-linea">+ Añadir línea</button><button class="plano chico" id="ejemplo">Poner un ejemplo</button></div>
+
+        <div class="totales">
+          <div>Gravado<b id="t-grav">0.00</b></div>
+          <div>Exonerado<b id="t-exo">0.00</b></div>
+          <div>Inafecto<b id="t-ina">0.00</b></div>
+          <div>Gratuito<b id="t-gra">0.00</b></div>
+          <div>IGV 18 %<b id="t-igv">0.00</b></div>
+          <div class="grande">Total<b id="t-total">0.00</b></div>
+        </div>
+        <p class="tenue" style="margin-top:8px">Orientativo. Los importes que valen los calcula el servidor con aritmética exacta y son los que van al XML.</p>
+
+        <div class="acciones"><button id="emitir">Emitir</button><span class="tenue">Contesta 202 con el número ya asignado, sin esperar a SUNAT.</span></div>
+        <div id="em-aviso" class="aviso"></div>
+      </section>
     </div>
 
-    <label style="margin-top:16px">Líneas</label>
-    <table id="lineas">
-      <thead><tr><th style="width:38%">Descripción</th><th class="num" style="width:11%">Cantidad</th><th class="num" style="width:16%">Valor unit. (sin IGV)</th><th style="width:22%">Afectación IGV</th><th class="num" style="width:9%">Valor</th><th style="width:4%"></th></tr></thead>
-      <tbody></tbody>
-    </table>
-    <div class="acciones" style="margin-top:8px"><button class="sec chico" id="add-linea">+ Añadir línea</button></div>
+    <!-- ============================================================ DERECHA: lo que pasa -->
+    <div class="col-der">
+      <section class="hoja" id="s-res">
+        <h2>Qué pasa con el comprobante</h2>
+        <span class="tenue">El número se asigna al instante. Todo lo demás pasa después, en cola. Aquí lo vas viendo.</span>
 
-    <div class="totales">
-      <span>Gravado <b id="t-grav">0.00</b></span>
-      <span>Exonerado <b id="t-exo">0.00</b></span>
-      <span>Inafecto <b id="t-ina">0.00</b></span>
-      <span>Gratuito <b id="t-gra">0.00</b></span>
-      <span>IGV 18 % <b id="t-igv">0.00</b></span>
-      <span class="grande">Total <b id="t-total">0.00</b></span>
+        <div class="vacio" id="res-vacio">
+          <b>Todavía nada</b>
+          Conecta y emite. Verás cómo se numera, se firma, se manda a SUNAT y vuelve el CDR — y el ticket tal cual lo imprimirías.
+        </div>
+
+        <div id="res" hidden>
+          <div class="numero-grande" id="r-numero">—</div>
+          <span class="estado" id="r-estado">—</span>
+
+          <div class="pipe" id="pipe"></div>
+
+          <dl class="datos">
+            <dt>Total</dt><dd id="r-total">—</dd>
+            <dt>SUNAT</dt><dd id="r-sunat">—</dd>
+            <dt>Hash del QR</dt><dd id="r-hash">—</dd>
+          </dl>
+          <p class="tenue" id="r-nota" style="margin-top:10px"></p>
+
+          <div class="vista" id="vista" hidden>
+            <div class="vista-cab"><span>Ticket 80 mm · como lo imprimiría la caja</span><button class="plano chico" id="v-abrir">Abrir el ticket</button></div>
+            <iframe id="v-frame" title="Vista del ticket"></iframe>
+          </div>
+
+          <div class="acciones">
+            <button class="sec chico" id="r-pdf" disabled>PDF A4</button>
+            <button class="sec chico" id="r-xml" disabled>XML firmado</button>
+            <button class="sec chico" id="r-cdr" disabled>CDR</button>
+            <button class="sec chico" id="r-json">JSON recibido</button>
+          </div>
+          <details><summary>Lo que se envió y lo que contestó la API</summary>
+            <label>Petición</label><pre id="d-envio"></pre>
+            <label>Respuesta</label><pre id="d-respuesta"></pre>
+          </details>
+        </div>
+      </section>
     </div>
-    <p class="nota">Totales calculados aquí solo para orientar. <b>Los que valen los calcula el servidor</b> con aritmética exacta, y son los que van al XML.</p>
+  </div>
 
-    <div class="acciones">
-      <button id="emitir">Emitir</button>
-      <span class="nota" style="margin:0">Devuelve 202 con el número ya asignado, sin esperar a SUNAT.</span>
+  <!-- ============================================================ LIBRO -->
+  <section class="libro" id="s-libro" hidden>
+    <div class="libro-cab">
+      <h2>Últimos comprobantes</h2>
+      <span class="tenue">Solo los del alcance de esta key.</span>
+      <button class="plano chico" id="refrescar">Actualizar</button>
     </div>
-    <div id="em-aviso" class="aviso"></div>
-  </section>
-
-  <!-- 3 · RESULTADO -->
-  <section class="hoja" id="s-resultado" hidden>
-    <h2><span class="n">3</span> Qué pasó con <span id="r-numero" class="mono"></span></h2>
-    <p class="sub">El correlativo se asigna al aceptar la petición. Todo lo demás pasa después, en cola. Esto lo va preguntando a la API; un ERP de verdad recibe un webhook.</p>
-    <div class="linea-tiempo" id="r-tiempo"></div>
-    <dl>
-      <dt>Estado</dt><dd><span id="r-estado" class="pill">—</span></dd>
-      <dt>Código SUNAT</dt><dd id="r-codigo">—</dd>
-      <dt>Mensaje SUNAT</dt><dd id="r-mensaje">—</dd>
-      <dt>Hash (va en el QR)</dt><dd id="r-hash">—</dd>
-      <dt>Total</dt><dd id="r-total">—</dd>
-    </dl>
-    <div class="acciones">
-      <button class="sec chico" id="r-pdf" disabled>PDF A4</button>
-      <button class="sec chico" id="r-ticket" disabled>Ticket 80 mm</button>
-      <button class="sec chico" id="r-xml" disabled>XML firmado</button>
-      <button class="sec chico" id="r-cdr" disabled>CDR de SUNAT</button>
-      <button class="sec chico" id="r-json">JSON recibido por la API</button>
-    </div>
-    <p class="nota" id="r-nota"></p>
-    <details><summary>Lo que se envió y lo que contestó la API</summary>
-      <label>Petición</label><pre id="d-envio"></pre>
-      <label>Respuesta (202)</label><pre id="d-respuesta"></pre>
-    </details>
-  </section>
-
-  <!-- 4 · LISTADO -->
-  <section class="hoja" id="s-lista" hidden>
-    <h2><span class="n">4</span> Últimos comprobantes del emisor</h2>
-    <p class="sub">Lo que ve el ERP con su API key: <b>solo los RUC de su alcance</b>. Anular elige solo el camino correcto —nota de crédito o comunicación de baja— según el tipo y el plazo.</p>
-    <div class="acciones" style="margin:0 0 10px"><button class="sec chico" id="refrescar">Actualizar</button></div>
-    <table id="tabla"><thead><tr><th>Comprobante</th><th>Cliente</th><th class="num">Total</th><th>Estado</th><th>SUNAT</th><th></th></tr></thead><tbody></tbody></table>
-    <div class="vacio" id="lista-vacia" hidden>Todavía no hay comprobantes de este emisor.</div>
+    <div class="tabla-w"><div class="tabla-scroll">
+      <table id="tabla">
+        <thead><tr><th>Comprobante</th><th>Cliente</th><th class="num">Total</th><th>Estado</th><th>SUNAT</th><th></th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div></div>
+    <div class="vacio" id="libro-vacio" hidden><b>Sin comprobantes todavía</b>Emite el primero arriba y aparecerá aquí.</div>
   </section>
 </main>
 
-<footer>
-  InkFact es una API de facturación electrónica SUNAT que se instala en tu propio servidor. Este fichero es un cliente de ejemplo:
-  <a href="https://github.com/Inklab-studio/inkfact-demo">código de este demo y clientes en PHP y Node</a>.
-</footer>
+<div class="barra-emitir" id="barra" hidden><span class="tenue">Total</span><span class="tot" id="b-total">0.00</span><button id="b-emitir">Emitir</button></div>
+
+<footer>InkFact es una API de facturación electrónica SUNAT que se instala en tu propio servidor. Este fichero es un cliente de ejemplo: <a href="https://github.com/Inklab-studio/inkfact-demo">código de este demo y clientes en PHP y Node</a>.</footer>
 
 <script>
 (function () {
   'use strict';
 
-  // =============================================================== utilidades
+  // ================================================================ tema
+  // Oscuro solo si se pide o si el sistema lo pide. Un mostrador tiene luz; un
+  // programador a las once de la noche, no. Se recuerda en este navegador.
+  const raiz = document.documentElement;
+  const temaGuardado = (() => { try { return localStorage.getItem('inkfact-demo.tema'); } catch { return null; } })();
+  const sistemaOscuro = matchMedia('(prefers-color-scheme: dark)').matches;
+  function ponerTema(t) { raiz.setAttribute('data-theme', t); try { localStorage.setItem('inkfact-demo.tema', t); } catch {} }
+  raiz.setAttribute('data-theme', temaGuardado || (sistemaOscuro ? 'dark' : 'light'));
+  document.getElementById('tema').addEventListener('click', () => ponerTema(raiz.getAttribute('data-theme') === 'dark' ? 'light' : 'dark'));
+
+  // ================================================================ utilidades
   const $ = (id) => document.getElementById(id);
-  function el(tag, clase, texto) {
-    const n = document.createElement(tag);
-    if (clase) n.className = clase;
-    if (texto !== undefined && texto !== null) n.textContent = String(texto);
-    return n;
-  }
+  function el(tag, clase, texto) { const n = document.createElement(tag); if (clase) n.className = clase; if (texto !== undefined && texto !== null) n.textContent = String(texto); return n; }
   function limpiar(n) { while (n.firstChild) n.removeChild(n.firstChild); }
   function avisar(id, texto, tipo) { const a = $(id); a.textContent = texto; a.className = 'aviso ' + (tipo || 'mal'); }
-  function ocultarAviso(id) { $(id).className = 'aviso'; }
+  function ocultar(id) { $(id).className = 'aviso'; }
   const hoy = () => new Date().toISOString().slice(0, 10);
   const dinero = (n) => (Math.round(n * 100) / 100).toFixed(2);
   const bytes = (t) => new TextEncoder().encode(t);
   const hex = (b) => [...new Uint8Array(b)].map((x) => x.toString(16).padStart(2, '0')).join('');
+  function cargando(b, si) { b.disabled = si; b.classList.toggle('cargando', si); }
 
-  const ESTADO = {
-    numbered: 'numerado', signed: 'firmado', queued: 'en cola', sent: 'enviado', accepted: 'aceptado',
-    observed: 'aceptado con observaciones', rejected: 'rechazado', error: 'error (reintentable)',
-    contingency: 'contingencia', pending_summary: 'pendiente de resumen', summarized: 'en resumen diario', voided: 'anulado',
-  };
-  const AFECTACION = [
-    ['10', 'Gravado (18 %)'], ['20', 'Exonerado'], ['30', 'Inafecto'], ['15', 'Gratuito (bonificación)'],
-  ];
+  const ESTADO = { numbered: 'numerado', signed: 'firmado', queued: 'en cola', sent: 'enviado', accepted: 'aceptado', observed: 'aceptado con observaciones', rejected: 'rechazado', error: 'error, se reintenta', contingency: 'contingencia', pending_summary: 'pendiente de resumen', summarized: 'en el resumen diario', voided: 'anulado' };
+  const AFECTACION = [['10', 'Gravado 18 %'], ['20', 'Exonerado'], ['30', 'Inafecto'], ['15', 'Gratuito']];
+  const TERMINAL = ['accepted', 'observed', 'rejected', 'error', 'pending_summary', 'summarized', 'voided'];
 
-  // =============================================================== credenciales
-  // Solo en memoria. Se van al cerrar la pestaña.
   let cred = null;
+  let urlTicket = null;
 
-  // =============================================================== la firma
-  //
-  // Lo único que tiene truco, y es lo mismo que hace un ERP:
+  // ================================================================ la firma
+  // Lo único con truco, y es lo mismo que hace un ERP:
   //   cadena = <timestamp>.<MÉTODO>.<ruta>.<sha256hex(cuerpo)>
   //   X-Signature: sha256=<hmac-sha256(secreto, cadena)>
-  // El cuerpo se hashea TAL CUAL viaja: reformatearlo después de firmar rompe la firma.
+  // El cuerpo se hashea TAL CUAL viaja. El secreto no sale de aquí: solo sale la firma.
   async function firmado(ruta, cuerpo) {
     const json = JSON.stringify(cuerpo);
     const ts = String(Math.floor(Date.now() / 1000));
@@ -216,13 +398,7 @@
     const firma = hex(await crypto.subtle.sign('HMAC', k, bytes([ts, 'POST', ruta, hashCuerpo].join('.'))));
     return leer(await fetch(cred.url + ruta, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json', 'X-Api-Key': cred.key,
-        'X-Signature': 'sha256=' + firma, 'X-Timestamp': ts,
-        // Una clave nueva por envío. En tu ERP debe ser LA MISMA si reintentas la misma
-        // venta: es lo que impide emitir dos veces por un timeout.
-        'Idempotency-Key': crypto.randomUUID(),
-      },
+      headers: { 'Content-Type': 'application/json', 'X-Api-Key': cred.key, 'X-Signature': 'sha256=' + firma, 'X-Timestamp': ts, 'Idempotency-Key': crypto.randomUUID() },
       body: json,
     }));
   }
@@ -232,59 +408,63 @@
     if (!r.ok) { const e = new Error((c.error && c.error.message) || ('HTTP ' + r.status)); e.status = r.status; throw e; }
     return c;
   }
-
-  // Las descargas: la key va EN LA CABECERA, nunca en la URL. Se pide, se recibe como
-  // blob y se abre. Las URL vienen COMPLETAS de la API: se usan tal cual.
+  // Descargas con la key EN LA CABECERA, nunca en la URL. Las URL vienen completas de la API.
+  async function blobDe(url) {
+    const r = await fetch(url, { headers: { 'X-Api-Key': cred.key } });
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    return URL.createObjectURL(await r.blob());
+  }
   function descargar(url, nombre, boton, enPestana) {
-    const texto = boton.textContent;
-    boton.disabled = true; boton.textContent = '…';
-    // La pestaña se abre EN EL CLIC, con el gesto vivo: después el navegador la bloquea.
+    cargando(boton, true);
     const ventana = enPestana ? window.open('', '_blank') : null;
-    fetch(url, { headers: { 'X-Api-Key': cred.key } })
-      .then((r) => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.blob(); })
-      .then((blob) => {
-        const u = URL.createObjectURL(blob);
+    blobDe(url)
+      .then((u) => {
         if (ventana && !ventana.closed) ventana.location.href = u;
         else { const a = el('a'); a.href = u; a.download = nombre; document.body.appendChild(a); a.click(); a.remove(); }
         setTimeout(() => URL.revokeObjectURL(u), 60000);
       })
       .catch((e) => { if (ventana && !ventana.closed) ventana.close(); avisar('em-aviso', 'No se pudo descargar: ' + e.message); })
-      .then(() => { boton.disabled = false; boton.textContent = texto; });
+      .then(() => cargando(boton, false));
   }
 
-  // =============================================================== 1 · conectar
-  $('conectar').addEventListener('click', async () => {
+  // ================================================================ 1 · conectar
+  $('conectar').addEventListener('click', conectar);
+  $('secreto').addEventListener('keydown', (e) => { if (e.key === 'Enter') conectar(); });
+  $('s-con').querySelector('h2').addEventListener('click', () => { if ($('s-con').classList.contains('plegada')) $('s-con').classList.remove('plegada'); });
+
+  async function conectar() {
     const url = $('url').value.trim().replace(/\/+$/, '');
     const key = $('key').value.trim();
     const secreto = $('secreto').value.trim();
-    ocultarAviso('con-aviso');
+    ocultar('con-aviso');
     if (!url || !key || !secreto) return avisar('con-aviso', 'Hacen falta la URL, la API key y el secreto.');
-    if (!window.isSecureContext) return avisar('con-aviso', 'Este navegador no permite firmar desde aquí. Ábrelo desde localhost o https.');
+    if (!window.isSecureContext) return avisar('con-aviso', 'Este navegador no deja firmar desde aquí. Ábrelo desde localhost o https.');
 
-    const b = $('conectar'); b.disabled = true; b.textContent = 'Conectando…';
+    const b = $('conectar'); cargando(b, true);
     cred = { url, key, secreto };
     try {
       const salud = await leer(await fetch(url + '/health'));
-      $('con-nota').textContent = 'servicio ' + salud.status + ' · ' + salud.environment;
-      // Lo que esta key puede ver: SOLO los RUC de su alcance.
       const { emisores } = await pedir('/v1/emisores');
       const activos = emisores.filter((e) => e.is_active);
       if (activos.length === 0) throw new Error('Esta API key no tiene alcance a ningún emisor activo.');
       const sel = $('emisor'); limpiar(sel);
       for (const e of activos) { const o = el('option', null, e.ruc + ' · ' + e.business_name); o.value = e.ruc; sel.appendChild(o); }
-      $('punto').className = 'punto ok'; $('con-texto').textContent = 'Conectado · ' + activos.length + ' emisor(es) en el alcance';
-      avisar('con-aviso', 'Conectado. La key ve ' + activos.length + ' emisor(es): los de su alcance y ninguno más.', 'ok');
-      $('s-emitir').hidden = false; $('s-lista').hidden = false;
-      $('s-emitir').scrollIntoView({ behavior: 'smooth', block: 'start' });
-      cargarLista();
+      $('con').className = 'con ok'; $('con-texto').textContent = 'Conectado';
+      $('con-nota').textContent = 'servicio ' + salud.status + ' · ' + salud.environment;
+      $('pl-url').textContent = url.replace(/^https?:\/\//, '');
+      $('pl-alcance').textContent = activos.length + ' emisor' + (activos.length === 1 ? '' : 'es') + ' en el alcance';
+      $('s-con').classList.add('plegada');
+      $('s-emitir').hidden = false; $('s-libro').hidden = false; $('barra').hidden = false;
+      $('s-emitir').classList.add('aparece');
+      cargarLibro();
     } catch (e) {
       cred = null;
-      $('punto').className = 'punto'; $('con-texto').textContent = 'Sin conectar';
-      avisar('con-aviso', e.status === 401 ? 'La API key no es válida o está revocada.' : e.message);
-    } finally { b.disabled = false; b.textContent = 'Conectar'; }
-  });
+      $('con').className = 'con'; $('con-texto').textContent = 'Sin conectar';
+      avisar('con-aviso', e.status === 401 ? 'La API key no es válida o está revocada.' : (e.message === 'Failed to fetch' ? 'No se llega al servicio. ¿Está levantado y con CORS_ORIGINS configurado?' : e.message));
+    } finally { cargando(b, false); }
+  }
 
-  // =============================================================== 2 · emitir
+  // ================================================================ 2 · armar
   function tipoCambio() {
     const factura = $('tipo').value === 'factura';
     $('l-doc').textContent = factura ? 'RUC del cliente' : 'DNI del cliente';
@@ -295,44 +475,44 @@
   $('tipo').addEventListener('change', tipoCambio);
 
   function nuevaLinea(desc, cant, valor, afect) {
-    const tr = el('tr');
-    const c1 = el('td'); const iDesc = el('input'); iDesc.value = desc || ''; iDesc.placeholder = 'Descripción'; c1.appendChild(iDesc);
-    const c2 = el('td'); const iCant = el('input', 'mono num'); iCant.type = 'number'; iCant.min = '0.001'; iCant.step = 'any'; iCant.value = cant || 1; c2.appendChild(iCant);
-    const c3 = el('td'); const iVal = el('input', 'mono num'); iVal.type = 'number'; iVal.min = '0'; iVal.step = 'any'; iVal.value = valor || 0; c3.appendChild(iVal);
-    const c4 = el('td'); const sAf = el('select'); for (const [v, t] of AFECTACION) { const o = el('option', null, t); o.value = v; sAf.appendChild(o); } sAf.value = afect || '10'; c4.appendChild(sAf);
-    const c5 = el('td', 'num mono', '0.00');
-    const c6 = el('td'); const bQuitar = el('button', 'chico sec', '×'); bQuitar.title = 'Quitar línea'; bQuitar.addEventListener('click', () => { tr.remove(); totales(); }); c6.appendChild(bQuitar);
-    [c1, c2, c3, c4, c5, c6].forEach((c) => tr.appendChild(c));
+    const fila = el('div', 'linea');
+    const iDesc = el('input'); iDesc.value = desc || ''; iDesc.placeholder = 'Descripción'; iDesc.setAttribute('aria-label', 'Descripción');
+    const iCant = el('input', 'mono'); iCant.type = 'number'; iCant.min = '0.001'; iCant.step = 'any'; iCant.value = cant || 1; iCant.style.textAlign = 'right'; iCant.setAttribute('aria-label', 'Cantidad');
+    const iVal = el('input', 'mono'); iVal.type = 'number'; iVal.min = '0'; iVal.step = 'any'; iVal.value = valor || 0; iVal.style.textAlign = 'right'; iVal.setAttribute('aria-label', 'Valor unitario sin IGV');
+    const sAf = el('select'); for (const [v, t] of AFECTACION) { const o = el('option', null, t); o.value = v; sAf.appendChild(o); } sAf.value = afect || '10'; sAf.setAttribute('aria-label', 'Afectación al IGV');
+    const valor$ = el('span', 'valor', '0.00');
+    const quitar = el('button', 'quitar', '×'); quitar.title = 'Quitar línea'; quitar.setAttribute('aria-label', 'Quitar línea'); quitar.addEventListener('click', () => { fila.remove(); totales(); });
+    [iDesc, iCant, iVal, sAf, valor$, quitar].forEach((n) => fila.appendChild(n));
     [iDesc, iCant, iVal, sAf].forEach((i) => i.addEventListener('input', totales));
-    $('lineas').tBodies[0].appendChild(tr);
+    $('lineas').appendChild(fila);
     totales();
+    return iDesc;
   }
-  $('add-linea').addEventListener('click', () => nuevaLinea('', 1, 0, '10'));
+  $('add-linea').addEventListener('click', () => nuevaLinea('', 1, 0, '10').focus());
+  $('ejemplo').addEventListener('click', () => {
+    limpiar($('lineas'));
+    nuevaLinea('Menu del dia', 2, 12.7119, '10'); nuevaLinea('Bebida', 1, 4.2373, '10'); nuevaLinea('Pan', 3, 1.5, '20');
+  });
 
   function leerLineas() {
-    return [...$('lineas').tBodies[0].rows].map((tr) => ({
-      description: tr.cells[0].firstChild.value.trim(),
-      quantity: Number(tr.cells[1].firstChild.value),
-      unit_value: Number(tr.cells[2].firstChild.value),
-      igv_type: tr.cells[3].firstChild.value,
-      _fila: tr,
-    }));
+    return [...$('lineas').children].map((f) => ({ description: f.children[0].value.trim(), quantity: Number(f.children[1].value), unit_value: Number(f.children[2].value), igv_type: f.children[3].value, _fila: f }));
   }
-  // Orientativo: el servidor lo recalcula con enteros escalados y sus números son los buenos.
   function totales() {
     let grav = 0, exo = 0, ina = 0, gra = 0;
     for (const l of leerLineas()) {
       const v = (l.quantity || 0) * (l.unit_value || 0);
-      l._fila.cells[4].textContent = dinero(v);
+      l._fila.children[4].textContent = dinero(v);
       if (l.igv_type === '10') grav += v; else if (l.igv_type === '20') exo += v; else if (l.igv_type === '30') ina += v; else gra += v;
     }
-    const igv = grav * 0.18;
+    const igv = grav * 0.18, total = grav + exo + ina + igv;
     $('t-grav').textContent = dinero(grav); $('t-exo').textContent = dinero(exo); $('t-ina').textContent = dinero(ina);
-    $('t-gra').textContent = dinero(gra); $('t-igv').textContent = dinero(igv); $('t-total').textContent = dinero(grav + exo + ina + igv);
+    $('t-gra').textContent = dinero(gra); $('t-igv').textContent = dinero(igv); $('t-total').textContent = dinero(total); $('b-total').textContent = dinero(total);
   }
 
-  $('emitir').addEventListener('click', async () => {
-    ocultarAviso('em-aviso');
+  $('emitir').addEventListener('click', emitir);
+  $('b-emitir').addEventListener('click', emitir);
+  async function emitir() {
+    ocultar('em-aviso');
     const factura = $('tipo').value === 'factura';
     const lineas = leerLineas().filter((l) => l.description && l.quantity > 0);
     if (lineas.length === 0) return avisar('em-aviso', 'Hace falta al menos una línea con descripción y cantidad.');
@@ -340,179 +520,165 @@
     if (factura && !$('cli-dir').value.trim()) return avisar('em-aviso', 'La factura necesita la dirección del cliente.');
 
     const cuerpo = {
-      emisor_ruc: $('emisor').value,
-      doc_type: $('tipo').value,
-      serie: factura ? 'F001' : 'B001',
-      issue_date: hoy(),
-      currency: $('moneda').value,
-      operation_type: '0101',
-      customer: Object.assign(
-        { doc_type: factura ? '6' : '1', doc_number: $('cli-doc').value.trim(), name: $('cli-nombre').value.trim() },
-        factura ? { address: $('cli-dir').value.trim() } : {},
-      ),
+      emisor_ruc: $('emisor').value, doc_type: $('tipo').value, serie: factura ? 'F001' : 'B001', issue_date: hoy(),
+      currency: $('moneda').value, operation_type: '0101',
+      customer: Object.assign({ doc_type: factura ? '6' : '1', doc_number: $('cli-doc').value.trim(), name: $('cli-nombre').value.trim() }, factura ? { address: $('cli-dir').value.trim() } : {}),
       items: lineas.map((l, i) => ({ code: 'DEMO' + (i + 1), description: l.description, quantity: l.quantity, unit: 'NIU', unit_value: l.unit_value, igv_type: l.igv_type })),
-      notes: ['Emitido desde demo.html'],
-      external_reference: 'demo_' + Date.now(),
+      notes: ['Emitido desde demo.html'], external_reference: 'demo_' + Date.now(),
     };
 
-    const b = $('emitir'); b.disabled = true; b.textContent = 'Emitiendo…';
+    const botones = [$('emitir'), $('b-emitir')]; botones.forEach((b) => cargando(b, true));
     $('d-envio').textContent = JSON.stringify(cuerpo, null, 2);
     try {
       const r = await firmado('/v1/comprobantes', cuerpo);
       $('d-respuesta').textContent = JSON.stringify(r, null, 2);
-      avisar('em-aviso', 'Emitido ' + r.comprobante.full_number + ' — el número ya está asignado. Ahora va a SUNAT.', 'ok');
-      mostrarResultado(r.comprobante);
-      $('s-resultado').scrollIntoView({ behavior: 'smooth', block: 'start' });
-      seguir(r.comprobante.id, 10).then(cargarLista);
+      mostrar(r.comprobante, true);
+      if (matchMedia('(max-width: 940px)').matches) $('s-res').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      seguir(r.comprobante.id, 12).then(cargarLibro);
     } catch (e) {
       $('d-respuesta').textContent = e.message;
       avisar('em-aviso', e.message);
-    } finally { b.disabled = false; b.textContent = 'Emitir'; }
-  });
+    } finally { botones.forEach((b) => cargando(b, false)); }
+  }
 
-  // =============================================================== 3 · resultado
+  // ================================================================ 3 · qué pasa
   const PASOS = ['numbered', 'signed', 'queued', 'sent'];
-  const TERMINALES = ['accepted', 'observed', 'rejected', 'error', 'pending_summary', 'summarized', 'voided'];
-  function mostrarResultado(c) {
-    $('s-resultado').hidden = false;
+  function mostrar(c, nuevo) {
+    $('res-vacio').hidden = true; $('res').hidden = false;
+    if (nuevo) { $('res').classList.remove('aparece'); void $('res').offsetWidth; $('res').classList.add('aparece'); }
     $('r-numero').textContent = c.full_number;
-    const p = $('r-estado'); p.textContent = ESTADO[c.status] || c.status; p.className = 'pill ' + c.status;
-    $('r-codigo').textContent = c.sunat_code || '—';
-    $('r-mensaje').textContent = c.sunat_message || '—';
-    $('r-hash').textContent = c.hash || '— (aparece al firmar)';
+    const es = $('r-estado'); es.textContent = c.voided_at ? 'anulado' : (ESTADO[c.status] || c.status); es.className = 'estado ' + (c.voided_at ? 'voided' : c.status);
     $('r-total').textContent = c.totals && c.totals.total ? c.currency + ' ' + c.totals.total : '—';
+    $('r-sunat').textContent = c.sunat_code ? c.sunat_code + ' · ' + (c.sunat_message || '') : (TERMINAL.includes(c.status) ? '—' : 'esperando…');
+    $('r-hash').textContent = c.hash || '— aparece al firmar';
 
-    // La línea de tiempo: lo recorrido, lo actual, lo que falta.
-    const t = $('r-tiempo'); limpiar(t);
+    // El pipeline. Un comprobante en 'sent' lleva los tres anteriores hechos.
+    const pipe = $('pipe'); limpiar(pipe);
     const esBoleta = c.doc_type === 'boleta';
-    const finales = esBoleta ? ['pending_summary', 'summarized', 'accepted'] : ['accepted'];
+    const ultimo = esBoleta ? 'pending_summary' : 'accepted';
     const idx = PASOS.indexOf(c.status);
-    const terminado = TERMINALES.includes(c.status);
-    PASOS.forEach((s, i) => t.appendChild(el('span', 'paso ' + (terminado || i < idx ? 'hecho' : i === idx ? 'actual' : ''), ESTADO[s])));
-    if (['rejected', 'error'].includes(c.status)) t.appendChild(el('span', 'paso mal', ESTADO[c.status]));
-    else finales.forEach((s) => t.appendChild(el('span', 'paso ' + (c.status === s ? 'actual' : ''), ESTADO[s])));
+    const fin = TERMINAL.includes(c.status);
+    PASOS.forEach((s, i) => {
+      const p = el('span', 'paso ' + (fin || i < idx ? 'hecho' : i === idx ? 'actual' : ''));
+      p.appendChild(el('i', null, fin || i < idx ? '✓' : String(i + 1))); p.appendChild(el('span', null, ESTADO[s])); pipe.appendChild(p);
+    });
+    const malo = ['rejected', 'error'].includes(c.status);
+    const p5 = el('span', 'paso ' + (malo ? 'mal' : c.status === ultimo || c.status === 'accepted' || c.status === 'summarized' ? 'hecho' : ''));
+    p5.appendChild(el('i', null, malo ? '!' : (c.status === ultimo || c.status === 'accepted' || c.status === 'summarized') ? '✓' : '5'));
+    p5.appendChild(el('span', null, malo ? ESTADO[c.status] : esBoleta ? 'al resumen diario' : 'aceptado'));
+    pipe.appendChild(p5);
+
+    $('r-nota').textContent =
+      c.status === 'pending_summary' || c.status === 'summarized' ? 'Es una boleta: no va sola a SUNAT, va dentro del resumen diario. El servicio lo arma y lo manda solo; el CDR llega con el resumen.'
+      : c.status === 'accepted' ? 'SUNAT lo aceptó. El CDR es la constancia, y se conserva junto al XML firmado.'
+      : c.status === 'rejected' ? 'SUNAT lo rechazó. No se reintenta: el código dice exactamente qué corregir.'
+      : c.status === 'error' ? 'Fallo de red o de SUNAT. La cola lo reintenta sola, con espera creciente.'
+      : 'En camino. Esto se va actualizando solo.';
 
     const nombre = c.full_number;
     enlazar('r-pdf', c.pdf_url && c.pdf_url + '?formato=a4', nombre + '.pdf', true);
-    enlazar('r-ticket', c.pdf_url && c.pdf_url + '?formato=ticket80', nombre + '-ticket.pdf', true);
     enlazar('r-xml', c.xml_url, nombre + '.xml', false);
     enlazar('r-cdr', c.cdr_url, nombre + '-cdr.zip', false);
     $('r-json').onclick = () => verJson(c.id, nombre);
 
-    $('r-nota').textContent =
-      c.status === 'pending_summary' || c.status === 'summarized' ? 'Es una boleta: no va sola a SUNAT, va dentro del resumen diario. El servicio lo arma y lo manda solo; el CDR llega con el resumen.'
-      : c.status === 'accepted' ? 'SUNAT lo aceptó. El CDR es la constancia y se conserva junto al XML firmado.'
-      : c.status === 'rejected' ? 'SUNAT lo rechazó. No se reintenta: el código de arriba dice exactamente qué corregir.'
-      : c.status === 'error' ? 'Fallo de red o de SUNAT. La cola lo reintenta sola con espera creciente.'
-      : '';
+    // El ticket, tal cual saldría de la impresora. Solo cuando ya existe el PDF.
+    if (c.pdf_url && $('vista').dataset.de !== c.id) {
+      $('vista').dataset.de = c.id;
+      blobDe(c.pdf_url + '?formato=ticket80').then((u) => {
+        if (urlTicket) URL.revokeObjectURL(urlTicket);
+        urlTicket = u; $('v-frame').src = u; $('vista').hidden = false;
+        $('v-abrir').onclick = () => window.open(u, '_blank');
+      }).catch(() => { $('vista').hidden = true; });
+    }
   }
-  function enlazar(id, url, nombre, enPestana) {
-    const b = $(id); b.disabled = !url;
-    b.onclick = url ? () => descargar(url, nombre, b, enPestana) : null;
-  }
+  function enlazar(id, url, nombre, enPestana) { const b = $(id); b.disabled = !url; b.onclick = url ? () => descargar(url, nombre, b, enPestana) : null; }
   async function seguir(id, intentos) {
     for (let i = 0; i < intentos; i++) {
       await new Promise((ok) => setTimeout(ok, 2500));
-      try {
-        const { comprobante } = await pedir('/v1/comprobantes/' + id);
-        mostrarResultado(comprobante);
-        if (TERMINALES.includes(comprobante.status)) return;
-      } catch (e) { return; }
+      try { const { comprobante } = await pedir('/v1/comprobantes/' + id); mostrar(comprobante, false); if (TERMINAL.includes(comprobante.status)) return; }
+      catch { return; }
     }
   }
 
-  // =============================================================== 4 · listado
-  async function cargarLista() {
+  // ================================================================ 4 · libro
+  let ultimoNuevo = null;
+  async function cargarLibro() {
     const cuerpo = $('tabla').tBodies[0]; limpiar(cuerpo);
     try {
       const { comprobantes } = await pedir('/v1/comprobantes?emisor_ruc=' + encodeURIComponent($('emisor').value) + '&limit=12');
-      $('lista-vacia').hidden = comprobantes.length > 0;
+      $('libro-vacio').hidden = comprobantes.length > 0;
       for (const c of comprobantes) cuerpo.appendChild(fila(c));
     } catch (e) { avisar('em-aviso', 'No se pudo cargar el listado: ' + e.message); }
   }
-  $('refrescar').addEventListener('click', cargarLista);
-  $('emisor').addEventListener('change', cargarLista);
+  $('refrescar').addEventListener('click', cargarLibro);
+  $('emisor').addEventListener('change', cargarLibro);
 
   function fila(c) {
-    const tr = el('tr');
-    const c1 = el('td'); c1.appendChild(el('div', 'mono', c.full_number)); c1.appendChild(el('div', 'nota', c.doc_type + ' · ' + c.issue_date));
+    const tr = el('tr'); if (c.full_number === ultimoNuevo) tr.className = 'fila-nueva';
+    const c1 = el('td'); c1.appendChild(el('div', 'mono', c.full_number)); c1.appendChild(el('div', 'tenue', c.doc_type + ' · ' + c.issue_date));
     const c2 = el('td', null, c.customer ? c.customer.name : '—');
     const c3 = el('td', 'num mono', c.totals && c.totals.total ? c.currency + ' ' + c.totals.total : '—');
-    const c4 = el('td'); c4.appendChild(el('span', 'pill ' + (c.voided_at ? 'voided' : c.status), c.voided_at ? 'anulado' : (ESTADO[c.status] || c.status)));
+    const c4 = el('td'); c4.appendChild(el('span', 'estado ' + (c.voided_at ? 'voided' : c.status), c.voided_at ? 'anulado' : (ESTADO[c.status] || c.status)));
     const c5 = el('td', 'mono', c.sunat_code || '—');
-    const c6 = el('td'); const acc = el('div', 'acciones'); acc.style.margin = '0';
-    const bJ = el('button', 'sec chico', 'JSON'); bJ.onclick = () => verJson(c.id, c.full_number); acc.appendChild(bJ);
-    if (c.pdf_url) { const b = el('button', 'sec chico', 'PDF'); b.onclick = () => descargar(c.pdf_url + '?formato=a4', c.full_number + '.pdf', b, true); acc.appendChild(b); }
-    if (c.xml_url) { const b = el('button', 'sec chico', 'XML'); b.onclick = () => descargar(c.xml_url, c.full_number + '.xml', b, false); acc.appendChild(b); }
-    if (c.cdr_url) { const b = el('button', 'sec chico', 'CDR'); b.onclick = () => descargar(c.cdr_url, c.full_number + '-cdr.zip', b, false); acc.appendChild(b); }
-    if (!c.voided_at && ['accepted', 'observed', 'pending_summary', 'summarized'].includes(c.status)) {
-      const b = el('button', 'peligro chico', 'Anular'); b.onclick = () => anular(c); acc.appendChild(b);
-    }
+    const c6 = el('td'); const acc = el('div', 'acciones');
+    const bV = el('button', 'plano chico', 'Ver'); bV.onclick = () => { mostrar(c, true); $('s-res').scrollIntoView({ behavior: 'smooth', block: 'start' }); }; acc.appendChild(bV);
+    const bJ = el('button', 'plano chico', 'JSON'); bJ.onclick = () => verJson(c.id, c.full_number); acc.appendChild(bJ);
+    if (!c.voided_at && ['accepted', 'observed', 'pending_summary', 'summarized'].includes(c.status)) { const b = el('button', 'peligro chico', 'Anular'); b.onclick = () => anular(c); acc.appendChild(b); }
     c6.appendChild(acc);
     [c1, c2, c3, c4, c5, c6].forEach((x) => tr.appendChild(x));
     return tr;
   }
 
-  // =============================================================== ver JSON
+  // ================================================================ JSON y anular
   async function verJson(id, nombre) {
     try {
       const r = await pedir('/v1/comprobantes/' + id + '/json');
-      modal('JSON recibido · ' + nombre, (dentro) => {
-        dentro.appendChild(el('p', 'nota', 'Tal cual lo mandó el ERP. Con esto se calcularon los importes y se generó el XML.'));
-        const pre = el('pre'); pre.textContent = JSON.stringify(r.payload, null, 2); dentro.appendChild(pre);
-      }, 'Cerrar', (cerrar) => cerrar());
+      modal('JSON recibido · ' + nombre, (d) => { d.appendChild(el('p', 'tenue', 'Tal cual lo mandó el ERP. Con esto se calcularon los importes y se generó el XML.')); const pre = el('pre'); pre.textContent = JSON.stringify(r.payload, null, 2); d.appendChild(pre); }, 'Cerrar', (cerrar) => cerrar());
     } catch (e) { avisar('em-aviso', e.message); }
   }
-
-  // =============================================================== anular
-  //
-  // Primero se PREGUNTA qué pasaría: la API decide si toca nota de crédito o comunicación
-  // de baja según el tipo y el plazo, y lo explica. Luego se confirma con un motivo.
+  // Primero se pregunta qué pasaría: la API decide nota de crédito o comunicación de baja
+  // según el tipo y el plazo, y lo explica. Luego se confirma con un motivo.
   async function anular(c) {
     let previo;
-    try { previo = await pedir('/v1/comprobantes/' + c.id + '/anulacion'); }
-    catch (e) { return avisar('em-aviso', e.message); }
+    try { previo = await pedir('/v1/comprobantes/' + c.id + '/anulacion'); } catch (e) { return avisar('em-aviso', e.message); }
     if (previo.ya_anulado) return avisar('em-aviso', c.full_number + ' ya está anulado.', 'info');
-
-    modal('Anular ' + c.full_number, (dentro) => {
-      dentro.appendChild(el('p', null, previo.explicacion));
-      const dl = el('dl');
+    modal('Anular ' + c.full_number, (d) => {
+      d.appendChild(el('p', null, previo.explicacion));
+      const dl = el('dl', 'datos');
       dl.appendChild(el('dt', null, 'Mecanismo')); dl.appendChild(el('dd', null, previo.metodo));
-      dl.appendChild(el('dt', null, 'Días transcurridos')); dl.appendChild(el('dd', null, previo.dias_transcurridos + ' de ' + previo.plazo_dias));
-      dentro.appendChild(dl);
-      const lab = el('label', null, 'Motivo'); lab.htmlFor = 'm-motivo'; dentro.appendChild(lab);
-      const inp = el('input'); inp.id = 'm-motivo'; inp.placeholder = 'Error en los datos del cliente'; dentro.appendChild(inp);
+      dl.appendChild(el('dt', null, 'Plazo')); dl.appendChild(el('dd', null, previo.dias_transcurridos + ' de ' + previo.plazo_dias + ' días'));
+      d.appendChild(dl);
+      const lab = el('label', null, 'Motivo'); lab.htmlFor = 'm-motivo'; d.appendChild(lab);
+      const inp = el('input'); inp.id = 'm-motivo'; inp.placeholder = 'Error en los datos del cliente'; d.appendChild(inp);
     }, 'Anular', async (cerrar, fallar) => {
       const motivo = $('m-motivo').value.trim();
       if (motivo.length < 3) return fallar('El motivo tiene que tener al menos 3 caracteres.');
-      try {
-        const r = await firmado('/v1/comprobantes/' + c.id + '/anular', { reason: motivo });
-        cerrar();
-        avisar('em-aviso', 'Anulación en marcha para ' + c.full_number + (r.comprobante && r.comprobante.full_number ? ' → ' + r.comprobante.full_number : '') + '.', 'ok');
-        cargarLista();
-      } catch (e) { fallar(e.message); }
+      try { await firmado('/v1/comprobantes/' + c.id + '/anular', { reason: motivo }); cerrar(); avisar('em-aviso', 'Anulación en marcha para ' + c.full_number + '.', 'ok'); ultimoNuevo = null; cargarLibro(); }
+      catch (e) { fallar(e.message); }
     }, true);
   }
 
-  // =============================================================== modal
-  function modal(titulo, construir, textoAceptar, alAceptar, peligroso) {
-    const velo = el('div', 'velo'); const caja = el('div', 'modal');
+  // ================================================================ modal
+  function modal(titulo, construir, textoOk, alAceptar, peligroso) {
+    const velo = el('div', 'velo'); const caja = el('div', 'modal'); caja.setAttribute('role', 'dialog'); caja.setAttribute('aria-modal', 'true');
     caja.appendChild(el('h3', null, titulo));
     const dentro = el('div'); construir(dentro); caja.appendChild(dentro);
     const err = el('div', 'aviso'); caja.appendChild(err);
     const acc = el('div', 'acciones');
-    const bCancel = el('button', 'sec', 'Cancelar'); const bOk = el('button', peligroso ? 'peligro' : '', textoAceptar);
-    const cerrar = () => velo.remove();
-    const fallar = (m) => { err.textContent = m; err.className = 'aviso mal'; bOk.disabled = false; };
+    const bCancel = el('button', 'sec', 'Cancelar'); const bOk = el('button', peligroso ? 'peligro' : '', textoOk);
+    const cerrar = () => { velo.remove(); document.removeEventListener('keydown', esc); };
+    const esc = (e) => { if (e.key === 'Escape') cerrar(); };
+    const fallar = (m) => { err.textContent = m; err.className = 'aviso mal'; cargando(bOk, false); const i = dentro.querySelector('input'); if (i) i.focus(); };
     bCancel.onclick = cerrar;
-    bOk.onclick = () => { bOk.disabled = true; err.className = 'aviso'; Promise.resolve(alAceptar(cerrar, fallar)).catch((e) => fallar(e.message)); };
+    bOk.onclick = () => { cargando(bOk, true); err.className = 'aviso'; Promise.resolve(alAceptar(cerrar, fallar)).catch((e) => fallar(e.message)); };
     acc.appendChild(bCancel); acc.appendChild(bOk); caja.appendChild(acc);
     velo.appendChild(caja); velo.addEventListener('click', (e) => { if (e.target === velo) cerrar(); });
+    document.addEventListener('keydown', esc);
     document.body.appendChild(velo);
-    const primero = dentro.querySelector('input'); if (primero) primero.focus();
+    const primero = dentro.querySelector('input'); (primero || bCancel).focus();
   }
 
-  // =============================================================== arranque
+  // ================================================================ arranque
   nuevaLinea('Menu del dia', 2, 12.7119, '10');
   nuevaLinea('Bebida', 1, 4.2373, '10');
   tipoCambio();
