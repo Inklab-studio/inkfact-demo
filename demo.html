@@ -1,0 +1,288 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>InkFact · demo</title>
+<style>
+  :root {
+    --fondo: #f6f7f9; --hoja: #fff; --tinta: #1a1d23; --tinta-2: #5b6270; --linea: #e3e6eb;
+    --marca: #1d4ed8; --ok: #15803d; --ok-fondo: #ecfdf3; --mal: #b91c1c; --mal-fondo: #fef2f2;
+    --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--fondo); color: var(--tinta); font: 15px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; }
+  main { max-width: 760px; margin: 40px auto; padding: 0 20px; }
+  h1 { font-size: 26px; margin: 0 0 4px; }
+  h1 small { font-weight: 400; color: var(--tinta-2); font-size: 15px; margin-left: 8px; }
+  p.intro { color: var(--tinta-2); margin: 0 0 28px; }
+  .hoja { background: var(--hoja); border: 1px solid var(--linea); border-radius: 12px; padding: 22px; margin-bottom: 18px; }
+  .hoja h2 { font-size: 16px; margin: 0 0 14px; }
+  label { display: block; font-size: 13px; color: var(--tinta-2); margin: 12px 0 4px; }
+  input { width: 100%; height: 40px; padding: 0 12px; border: 1px solid var(--linea); border-radius: 8px; font: inherit; font-family: var(--mono); font-size: 13px; }
+  input:focus { outline: 2px solid var(--marca); outline-offset: 1px; border-color: transparent; }
+  .fila { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  button { height: 42px; padding: 0 20px; border: 0; border-radius: 8px; background: var(--marca); color: #fff; font: inherit; font-weight: 600; cursor: pointer; margin-top: 18px; }
+  button:disabled { opacity: .55; cursor: default; }
+  .aviso { padding: 12px 14px; border-radius: 8px; margin-top: 14px; font-size: 14px; display: none; }
+  .aviso.ok { display: block; background: var(--ok-fondo); color: var(--ok); }
+  .aviso.mal { display: block; background: var(--mal-fondo); color: var(--mal); }
+  dl { display: grid; grid-template-columns: 160px 1fr; gap: 6px 14px; margin: 0; font-size: 14px; }
+  dt { color: var(--tinta-2); } dd { margin: 0; font-family: var(--mono); font-size: 13px; }
+  .estado { display: inline-block; padding: 2px 10px; border-radius: 999px; font-size: 12px; font-weight: 600; background: #eef2ff; color: var(--marca); }
+  .estado.accepted { background: var(--ok-fondo); color: var(--ok); }
+  .estado.rejected, .estado.error { background: var(--mal-fondo); color: var(--mal); }
+  pre { background: #f1f3f6; border: 1px solid var(--linea); border-radius: 8px; padding: 12px; font: 12px/1.5 var(--mono); overflow: auto; max-height: 320px; margin: 10px 0 0; }
+  button.chico { height: 34px; padding: 0 14px; margin: 10px 8px 0 0; background: #eef2ff; color: var(--marca); font-weight: 600; font-size: 13px; }
+  button.chico:disabled { background: #f1f3f6; color: var(--tinta-2); }
+  footer { color: var(--tinta-2); font-size: 13px; margin-top: 30px; }
+  footer a { color: var(--marca); }
+</style>
+</head>
+<body>
+<main>
+  <h1>InkFact <small>demo en vivo</small></h1>
+  <p class="intro">
+    Esta página emite <strong>una boleta de verdad</strong> contra una instancia de InkFact:
+    se firma, se manda a SUNAT (ambiente beta) y vuelve con su CDR. Todo lo que ves aquí
+    pasa por la misma API que usaría tu ERP.
+  </p>
+
+  <div class="hoja">
+    <h2>1 · A qué servidor</h2>
+    <label for="url">URL de InkFact</label>
+    <input id="url" value="http://localhost:3010" spellcheck="false">
+    <div class="fila">
+      <div>
+        <label for="key">X-Api-Key</label>
+        <input id="key" placeholder="ik_beta_…" spellcheck="false">
+      </div>
+      <div>
+        <label for="secreto">Secreto HMAC</label>
+        <input id="secreto" type="password" placeholder="el que salió al crear la API key" spellcheck="false">
+      </div>
+    </div>
+    <label for="ruc">RUC del emisor</label>
+    <input id="ruc" value="20000000001" spellcheck="false">
+    <button id="emitir">Emitir una boleta de prueba</button>
+    <div id="aviso" class="aviso"></div>
+  </div>
+
+  <div class="hoja" id="resultado" hidden>
+    <h2>2 · Lo que devolvió la API</h2>
+    <dl>
+      <dt>Comprobante</dt><dd id="r-numero">—</dd>
+      <dt>Estado</dt><dd><span id="r-estado" class="estado">—</span></dd>
+      <dt>Código SUNAT</dt><dd id="r-codigo">—</dd>
+      <dt>Mensaje</dt><dd id="r-mensaje">—</dd>
+    </dl>
+    <div class="enlaces">
+      <button class="chico" id="l-pdf" disabled>PDF</button>
+      <button class="chico" id="l-xml" disabled>XML firmado</button>
+      <button class="chico" id="l-cdr" disabled>CDR de SUNAT</button>
+    </div>
+    <p id="r-nota" style="color:var(--tinta-2);font-size:13px;margin:12px 0 0"></p>
+  </div>
+
+  <div class="hoja" id="detalle" hidden>
+    <h2>3 · Lo que se mandó y lo que llegó</h2>
+    <label>Petición (JSON enviado)</label>
+    <pre id="d-envio"></pre>
+    <label>Respuesta</label>
+    <pre id="d-respuesta"></pre>
+  </div>
+
+  <footer>
+    InkFact es una API de facturación electrónica SUNAT que se instala en tu propio
+    servidor. Este fichero es solo un cliente de ejemplo.
+    <a href="https://github.com/Inklab-studio/inkfact-demo">Código de este demo y clientes en PHP y Node</a>.
+  </footer>
+</main>
+
+<script>
+(function () {
+  'use strict';
+
+  // ------------------------------------------------------------- utilidades
+  var $ = function (id) { return document.getElementById(id); };
+
+  function bytes(t) { return new TextEncoder().encode(t); }
+  function hex(buffer) {
+    var s = '', v = new Uint8Array(buffer);
+    for (var i = 0; i < v.length; i++) s += v[i].toString(16).padStart(2, '0');
+    return s;
+  }
+  function avisar(texto, bien) {
+    var a = $('aviso');
+    a.textContent = texto;
+    a.className = 'aviso ' + (bien ? 'ok' : 'mal');
+  }
+  function hoy() { return new Date().toISOString().slice(0, 10); }
+
+  // ------------------------------------------------------------- la firma
+  //
+  // Esto es lo único que tiene truco, y es lo mismo que hace un ERP:
+  //
+  //   cadena = <timestamp>.<MÉTODO>.<ruta>.<sha256hex(cuerpo)>
+  //   X-Signature: sha256=<hmac-sha256(secreto, cadena)>
+  //
+  // El cuerpo se hashea TAL CUAL viaja. Si lo reformateas después de firmar, la firma
+  // deja de valer.
+  function firmarYEnviar(base, key, secreto, ruta, cuerpo) {
+    var json = JSON.stringify(cuerpo);
+    var ts = String(Math.floor(Date.now() / 1000));
+
+    return crypto.subtle.digest('SHA-256', bytes(json)).then(hex)
+      .then(function (hashCuerpo) {
+        return crypto.subtle
+          .importKey('raw', bytes(secreto), { name: 'HMAC', hash: 'SHA-256' }, false, ['sign'])
+          .then(function (k) { return crypto.subtle.sign('HMAC', k, bytes([ts, 'POST', ruta, hashCuerpo].join('.'))); })
+          .then(hex);
+      })
+      .then(function (firma) {
+        return fetch(base + ruta, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-Api-Key': key,
+            'X-Signature': 'sha256=' + firma,
+            'X-Timestamp': ts,
+            // Una clave nueva por envío. En tu ERP debe ser LA MISMA si reintentas la
+            // misma venta: es lo que impide emitir dos veces por un timeout.
+            'Idempotency-Key': crypto.randomUUID(),
+          },
+          body: json,
+        });
+      });
+  }
+
+  function leer(r) {
+    return r.json().catch(function () { return {}; }).then(function (c) {
+      if (!r.ok) {
+        var m = (c.error && c.error.message) || ('HTTP ' + r.status);
+        throw new Error(m);
+      }
+      return c;
+    });
+  }
+
+  // ------------------------------------------------------------- la boleta
+  function boletaDePrueba(ruc) {
+    return {
+      emisor_ruc: ruc,
+      doc_type: 'boleta',
+      serie: 'B001',
+      issue_date: hoy(),
+      currency: 'PEN',
+      operation_type: '0101',
+      customer: { doc_type: '1', doc_number: '45678912', name: 'CLIENTE DE PRUEBA' },
+      items: [
+        { code: 'DEMO1', description: 'Producto de demostracion', quantity: 2, unit: 'NIU', unit_value: 12.7119, igv_type: '10' },
+      ],
+      notes: ['Emitido desde demo.html'],
+      external_reference: 'demo_' + Date.now(),
+    };
+  }
+
+  // ------------------------------------------------------------- pintar
+  function pintar(c, base, key) {
+    $('resultado').hidden = false;
+    $('r-numero').textContent = c.full_number || '—';
+    var e = $('r-estado');
+    e.textContent = c.status || '—';
+    e.className = 'estado ' + (c.status || '');
+    $('r-codigo').textContent = c.sunat_code || '—';
+    $('r-mensaje').textContent = c.sunat_message || '—';
+
+    // Las descargas van con la API key EN LA CABECERA, no en la URL: la API no admite
+    // una key en la URL a proposito, porque acabaria en un historial de navegador. Se
+    // pide con fetch, se recibe como blob y se abre. Un boton solo se enciende cuando el
+    // archivo ya existe: el XML al firmar, el CDR cuando SUNAT contesta.
+    // La API devuelve las URL COMPLETAS (con su PUBLIC_BASE_URL), no rutas relativas.
+    // Se usan tal cual: pegarles la base delante fue el primer fallo de esta demo.
+    descarga('l-pdf', c.pdf_url ? c.pdf_url + (c.pdf_url.indexOf('?') >= 0 ? '&' : '?') + 'formato=a4' : null, key, (c.full_number || 'comprobante') + '.pdf');
+    descarga('l-xml', c.xml_url, key, (c.full_number || 'comprobante') + '.xml');
+    descarga('l-cdr', c.cdr_url, key, (c.full_number || 'comprobante') + '-cdr.zip');
+  }
+  function descarga(id, url, key, nombre) {
+    var b = $(id);
+    b.disabled = !url;
+    b.onclick = !url ? null : function () {
+      var texto = b.textContent;
+      b.disabled = true; b.textContent = '…';
+      // La pestana se abre EN EL CLIC, con el gesto vivo: despues del fetch el navegador
+      // ya la bloquearia como popup.
+      var ventana = window.open('', '_blank');
+      fetch(url, { headers: { 'X-Api-Key': key } })
+        .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.blob(); })
+        .then(function (blob) {
+          var url = URL.createObjectURL(blob);
+          if (ventana && !ventana.closed) ventana.location.href = url;
+          else { var a = document.createElement('a'); a.href = url; a.download = nombre; document.body.appendChild(a); a.click(); a.remove(); }
+          setTimeout(function () { URL.revokeObjectURL(url); }, 60000);
+        })
+        .catch(function (e) { if (ventana && !ventana.closed) ventana.close(); avisar('No se pudo descargar: ' + e.message); })
+        .then(function () { b.disabled = false; b.textContent = texto; });
+    };
+  }
+
+  // ------------------------------------------------------------- seguir el estado
+  //
+  // La API contesta 202 con el número YA asignado y manda a SUNAT después. Aquí se
+  // pregunta unas cuantas veces para ver cómo pasa de "queued" a "accepted". En un ERP
+  // de verdad no se hace esto: se recibe un webhook.
+  function seguir(id, base, key, intentos) {
+    return fetch(base + '/v1/comprobantes/' + id, { headers: { 'X-Api-Key': key } })
+      .then(leer)
+      .then(function (r) {
+        var c = r.comprobante;
+        pintar(c, base, key);
+        var final = ['accepted', 'observed', 'rejected', 'error', 'summarized', 'pending_summary'].indexOf(c.status) >= 0;
+        if (final || intentos <= 0) {
+          $('r-nota').textContent = c.status === 'pending_summary' || c.status === 'summarized'
+            ? 'Es una boleta: no va sola a SUNAT, va dentro del resumen diario. Eso lo hace el servicio solo.'
+            : (c.status === 'accepted' ? 'SUNAT lo aceptó. El CDR de arriba es la constancia.' : '');
+          return;
+        }
+        return new Promise(function (ok) { setTimeout(ok, 2500); })
+          .then(function () { return seguir(id, base, key, intentos - 1); });
+      });
+  }
+
+  // ------------------------------------------------------------- el botón
+  $('emitir').addEventListener('click', function () {
+    var base = $('url').value.trim().replace(/\/+$/, '');
+    var key = $('key').value.trim();
+    var secreto = $('secreto').value.trim();
+    var ruc = $('ruc').value.trim();
+    if (!base || !key || !secreto || !ruc) { avisar('Rellena la URL, la API key, el secreto y el RUC.'); return; }
+    if (!window.isSecureContext) { avisar('Este navegador no permite firmar desde aquí. Ábrelo desde localhost o https.'); return; }
+
+    var b = $('emitir');
+    b.disabled = true; b.textContent = 'Emitiendo…';
+    $('aviso').className = 'aviso';
+
+    var cuerpo = boletaDePrueba(ruc);
+    $('detalle').hidden = false;
+    $('d-envio').textContent = JSON.stringify(cuerpo, null, 2);
+    $('d-respuesta').textContent = '…';
+
+    firmarYEnviar(base, key, secreto, '/v1/comprobantes', cuerpo)
+      .then(leer)
+      .then(function (r) {
+        $('d-respuesta').textContent = JSON.stringify(r, null, 2);
+        var c = r.comprobante;
+        avisar('Emitido ' + c.full_number + ' con el número ya asignado. Ahora va a SUNAT…', true);
+        pintar(c, base, key);
+        return seguir(c.id, base, key, 8);
+      })
+      .catch(function (e) {
+        $('d-respuesta').textContent = e.message;
+        avisar(e.message);
+      })
+      .then(function () { b.disabled = false; b.textContent = 'Emitir una boleta de prueba'; });
+  });
+})();
+</script>
+</body>
+</html>
