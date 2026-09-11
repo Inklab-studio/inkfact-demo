@@ -104,7 +104,7 @@ button.sec:hover { background: color-mix(in oklch, var(--brand-faint) 80%, var(-
 button.plano { background: transparent; color: var(--brand); padding: 0 10px; }
 button.plano:hover { background: var(--brand-faint); }
 button.peligro { background: var(--bad-faint); color: var(--bad); }
-button.chico { height: 32px; padding: 0 12px; font-size: var(--t-sm); font-weight: 500; }
+button.chico { height: 36px; padding: 0 12px; font-size: var(--t-sm); font-weight: 500; }
 button.cargando { position: relative; color: transparent; }
 button.cargando::after { content: ""; position: absolute; inset: 0; margin: auto; width: 16px; height: 16px; border: 2px solid currentColor; border-color: var(--brand-ink) transparent var(--brand-ink) transparent; border-radius: 50%; animation: girar .8s linear infinite; }
 button.sec.cargando::after, button.plano.cargando::after { border-color: var(--brand) transparent var(--brand) transparent; }
@@ -122,7 +122,7 @@ button.sec.cargando::after, button.plano.cargando::after { border-color: var(--b
 .linea:last-child { border-bottom: 0; }
 .linea input, .linea select { height: 36px; font-size: var(--t-sm); }
 .linea .valor { text-align: right; font-family: var(--mono); font-variant-numeric: tabular-nums; font-size: var(--t-sm); color: var(--ink-2); padding-right: 4px; }
-.linea .quitar { height: 32px; width: 32px; padding: 0; background: transparent; color: var(--ink-3); font-size: 18px; line-height: 1; }
+.linea .quitar { height: 36px; width: 36px; padding: 0; background: transparent; color: var(--ink-3); font-size: 18px; line-height: 1; }
 .linea .quitar:hover { background: var(--bad-faint); color: var(--bad); }
 .lineas-cab { display: grid; grid-template-columns: minmax(0, 1fr) 76px 108px 150px 84px 36px; gap: 6px; padding: 8px 10px 6px; font-size: var(--t-xs); font-weight: 500; color: var(--ink-2); background: var(--panel); border-bottom: 1px solid var(--line); }
 .lineas-cab .r { text-align: right; }
@@ -206,6 +206,10 @@ td.num, th.num { text-align: right; }
 .tabla-scroll { overflow-x: auto; }
 td .acciones { margin: 0; gap: 4px; flex-wrap: nowrap; justify-content: flex-end; }
 .fila-nueva td { animation: destello 1.6s var(--ease); }
+/* Mientras carga: filas fantasma en vez de una tabla vacia que parpadea. */
+.esqueleto td { padding: 13px 10px; }
+.esqueleto span { display: block; height: 12px; border-radius: 6px; background: var(--sunken); animation: respirar 1.2s ease-in-out infinite; }
+@keyframes respirar { 50% { opacity: .45; } }
 @keyframes destello { from { background: var(--ok-faint); } to { background: transparent; } }
 
 /* ================================================================== modal */
@@ -295,19 +299,19 @@ footer { max-width: 1180px; margin: 0 auto; padding: 0 20px 40px; color: var(--i
 
         <div class="vacio" id="res-vacio">
           <b>Todavía nada</b>
-          Conecta y emite. Verás cómo se numera, se firma, se manda a SUNAT y vuelve el CDR — y el ticket tal cual lo imprimirías.
+          Conecta y emite. Verás cómo se numera, se firma, se manda a SUNAT y vuelve el CDR. Y el ticket, tal cual lo imprimirías.
         </div>
 
         <div id="res" hidden>
-          <div class="numero-grande" id="r-numero">—</div>
-          <span class="estado" id="r-estado">—</span>
+          <div class="numero-grande" id="r-numero"></div>
+          <span class="estado" id="r-estado"></span>
 
           <div class="pipe" id="pipe"></div>
 
           <dl class="datos">
-            <dt>Total</dt><dd id="r-total">—</dd>
-            <dt>SUNAT</dt><dd id="r-sunat">—</dd>
-            <dt>Hash del QR</dt><dd id="r-hash">—</dd>
+            <dt>Total</dt><dd id="r-total"></dd>
+            <dt>SUNAT</dt><dd id="r-sunat"></dd>
+            <dt>Hash del QR</dt><dd id="r-hash"></dd>
           </dl>
           <p class="tenue" id="r-nota" style="margin-top:10px"></p>
 
@@ -550,7 +554,7 @@ footer { max-width: 1180px; margin: 0 auto; padding: 0 20px 40px; color: var(--i
     const es = $('r-estado'); es.textContent = c.voided_at ? 'anulado' : (ESTADO[c.status] || c.status); es.className = 'estado ' + (c.voided_at ? 'voided' : c.status);
     $('r-total').textContent = c.totals && c.totals.total ? c.currency + ' ' + c.totals.total : '—';
     $('r-sunat').textContent = c.sunat_code ? c.sunat_code + ' · ' + (c.sunat_message || '') : (TERMINAL.includes(c.status) ? '—' : 'esperando…');
-    $('r-hash').textContent = c.hash || '— aparece al firmar';
+    $('r-hash').textContent = c.hash || 'aparece al firmar';
 
     // El pipeline. Un comprobante en 'sent' lleva los tres anteriores hechos.
     const pipe = $('pipe'); limpiar(pipe);
@@ -570,7 +574,7 @@ footer { max-width: 1180px; margin: 0 auto; padding: 0 20px 40px; color: var(--i
 
     $('r-nota').textContent =
       c.status === 'pending_summary' || c.status === 'summarized' ? 'Es una boleta: no va sola a SUNAT, va dentro del resumen diario. El servicio lo arma y lo manda solo; el CDR llega con el resumen.'
-      : c.status === 'accepted' ? 'SUNAT lo aceptó. El CDR es la constancia, y se conserva junto al XML firmado.'
+      : c.status === 'accepted' ? 'SUNAT lo aceptó. El CDR es la constancia y se conserva junto al XML firmado.'
       : c.status === 'rejected' ? 'SUNAT lo rechazó. No se reintenta: el código dice exactamente qué corregir.'
       : c.status === 'error' ? 'Fallo de red o de SUNAT. La cola lo reintenta sola, con espera creciente.'
       : 'En camino. Esto se va actualizando solo.';
@@ -604,11 +608,14 @@ footer { max-width: 1180px; margin: 0 auto; padding: 0 20px 40px; color: var(--i
   let ultimoNuevo = null;
   async function cargarLibro() {
     const cuerpo = $('tabla').tBodies[0]; limpiar(cuerpo);
+    // Esqueleto: tres filas fantasma hasta que llegue la respuesta.
+    for (let i = 0; i < 3; i++) { const tr = el('tr', 'esqueleto'); for (let j = 0; j < 6; j++) { const td = el('td'); const sp = el('span'); sp.style.width = ['72%','60%','40%','55%','30%','80%'][j]; td.appendChild(sp); tr.appendChild(td); } cuerpo.appendChild(tr); }
     try {
       const { comprobantes } = await pedir('/v1/comprobantes?emisor_ruc=' + encodeURIComponent($('emisor').value) + '&limit=12');
+      limpiar(cuerpo);
       $('libro-vacio').hidden = comprobantes.length > 0;
       for (const c of comprobantes) cuerpo.appendChild(fila(c));
-    } catch (e) { avisar('em-aviso', 'No se pudo cargar el listado: ' + e.message); }
+    } catch (e) { limpiar(cuerpo); avisar('em-aviso', 'No se pudo cargar el listado: ' + e.message); }
   }
   $('refrescar').addEventListener('click', cargarLibro);
   $('emisor').addEventListener('change', cargarLibro);
@@ -633,7 +640,12 @@ footer { max-width: 1180px; margin: 0 auto; padding: 0 20px 40px; color: var(--i
   async function verJson(id, nombre) {
     try {
       const r = await pedir('/v1/comprobantes/' + id + '/json');
-      modal('JSON recibido · ' + nombre, (d) => { d.appendChild(el('p', 'tenue', 'Tal cual lo mandó el ERP. Con esto se calcularon los importes y se generó el XML.')); const pre = el('pre'); pre.textContent = JSON.stringify(r.payload, null, 2); d.appendChild(pre); }, 'Cerrar', (cerrar) => cerrar());
+      const texto = JSON.stringify(r.payload, null, 2);
+      modal('JSON recibido · ' + nombre, (d) => { d.appendChild(el('p', 'tenue', 'Tal cual lo mandó el ERP. Con esto se calcularon los importes y se generó el XML.')); const pre = el('pre'); pre.textContent = texto; d.appendChild(pre); }, 'Copiar', async (cerrar, fallar) => {
+        // Sin portapapeles (http sin cifrar, o el navegador dice que no) no se finge: se dice, y el JSON sigue ahi para copiarlo a mano.
+        if (!navigator.clipboard) return fallar('Este navegador no permite copiar aquí: selecciona el texto a mano.');
+        try { await navigator.clipboard.writeText(texto); cerrar(); avisar('em-aviso', 'JSON copiado.', 'ok'); } catch { fallar('El navegador no dejó copiar: selecciona el texto a mano.'); }
+      });
     } catch (e) { avisar('em-aviso', e.message); }
   }
   // Primero se pregunta qué pasaría: la API decide nota de crédito o comunicación de baja
