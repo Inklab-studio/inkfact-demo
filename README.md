@@ -8,15 +8,26 @@ Este repositorio **no es InkFact**. Es lo que se le pone delante: un demo en HTM
 probarla en un minuto, y dos clientes de ejemplo —PHP y Node— para copiar dentro de tu
 ERP.
 
-## Probar en un minuto
+## Probar en dos minutos
 
 1. Abre `demo.html` en el navegador.
-2. Pon la URL de una instancia de InkFact, tu `X-Api-Key`, el secreto HMAC y el RUC.
-3. **Emitir una boleta de prueba.**
+2. **Conectar**: la URL de una instancia de InkFact, tu `X-Api-Key` y el secreto HMAC. La
+   página comprueba el servicio y carga **solo los emisores que esa key puede ver** —el
+   alcance por API key, delante de tus ojos—.
+3. **Emitir**: boleta o factura, en soles o dólares, con las líneas que quieras y su
+   afectación al IGV —gravado, exonerado, inafecto, gratuito—. Los totales se calculan en
+   vivo para orientar; los que valen los calcula el servidor.
+4. **Ver qué pasó**: la API contesta al instante con el número ya asignado, y la página
+   sigue el comprobante paso a paso —numerado, firmado, en cola, enviado, aceptado— con
+   el código y el mensaje exactos de SUNAT. PDF en A4 o ticket, XML firmado, CDR, y el
+   JSON tal cual llegó a la API.
+5. **Los últimos comprobantes del emisor**, con sus descargas y **Anular**: la API dice
+   primero qué va a hacer —nota de crédito o comunicación de baja, según el tipo y el
+   plazo— y luego se confirma con un motivo.
 
-Verás cómo la API contesta al instante con el número ya asignado, cómo el comprobante
-pasa a SUNAT, y podrás descargar el PDF, el XML firmado y el CDR. Debajo, el JSON exacto
-que se mandó y lo que devolvió la API.
+Todo lo que hace esta página lo hace contra la misma API que usaría tu ERP, con la misma
+firma y las mismas credenciales. Verificado contra la beta real de SUNAT: una factura
+emitida desde aquí vuelve con *"ha sido aceptada"* y su CDR.
 
 > Es un solo fichero, sin dependencias ni instalación. Funciona abriéndolo con doble clic
 > o servido por HTTP. La instancia de InkFact tiene que tener `CORS_ORIGINS` configurado
