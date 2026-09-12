@@ -600,8 +600,15 @@ footer { max-width: 1180px; margin: 0 auto; padding: 0 20px 40px; color: var(--i
     for (let i = 0; i < intentos; i++) {
       await new Promise((ok) => setTimeout(ok, 2500));
       try { const { comprobante } = await pedir('/v1/comprobantes/' + id); mostrar(comprobante, false); if (TERMINAL.includes(comprobante.status)) return; }
-      catch { return; }
+      catch (e) {
+        // Si el servicio deja de contestar a mitad, se dice. Callarse dejaria el
+        // pipeline a medias y a quien mira pensando que se quedo colgado.
+        $('r-nota').textContent = 'Se perdio la conexion con el servicio mientras se seguia el comprobante (' + e.message + '). Pulsa Actualizar en el libro cuando vuelva.';
+        return;
+      }
     }
+    // Se agotaron los intentos y sigue en camino: normal en una boleta a ultima hora.
+    $('r-nota').textContent = 'Sigue en camino. Pulsa Actualizar en el libro para ver su estado.';
   }
 
   // ================================================================ 4 · libro
