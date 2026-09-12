@@ -557,7 +557,7 @@ curl -X POST https://facturacion.tu-dominio/v1/comprobantes \
       <p>Lo que hace falta para facturar ante SUNAT desde cualquier ERP, y lo que hace falta para seguir operándolo el mes que viene.</p>
     </div>
     <dl class="incluye">
-      <div><i>✓</i><div><dt>Boletas y facturas</dt><dd>Notas de crédito y débito, resumen diario de boletas y comunicación de baja. Anular decide solo cuál toca según el tipo y el plazo.</dd></div></div>
+      <div><i>✓</i><div><dt>Boletas y facturas</dt><dd>Notas de crédito y débito, resumen diario de boletas, comunicación de baja, retención y percepción. Anular decide solo cuál toca según el tipo y el plazo.</dd></div></div>
       <div><i>✓</i><div><dt>Guías de remisión</dt><dd>Por la API REST de SUNAT, con OAuth2 y verificadas contra un servidor que la imita. La baja, que SUNAT solo admite desde SOL, se registra para que el ERP no la vea vigente.</dd></div></div>
       <div><i>✓</i><div><dt>Correlativos sin carreras</dt><dd>Dos cajas cobrando a la vez nunca sacan el mismo número. Lock de fila en la base, no en el código.</dd></div></div>
       <div><i>✓</i><div><dt>Idempotencia</dt><dd>Un timeout no emite dos veces: la misma clave devuelve el mismo comprobante.</dd></div></div>
@@ -567,7 +567,7 @@ curl -X POST https://facturacion.tu-dominio/v1/comprobantes \
       <div><i>✓</i><div><dt>Multiempresa</dt><dd>Cada RUC con su certificado, su ambiente y sus series. Una API key solo ve los RUC de su alcance.</dd></div></div>
       <div><i>✓</i><div><dt>Certificados cifrados en reposo</dt><dd>Nunca en el repositorio, nunca en variables de entorno, nunca en logs. Aviso 30 días antes de que venzan.</dd></div></div>
       <div><i>✓</i><div><dt>Panel y fiscalización</dt><dd>Documentos por estado, errores, vencimientos. Un informe mensual busca huecos de numeración y comprobantes sin respaldo.</dd></div></div>
-      <div><i>✓</i><div><dt>Verificado contra la beta de SUNAT</dt><dd>31 comprobantes distintos: gratuitas, ISC, exportación, dólares, descuentos globales, notas y resúmenes. Y las guías, contra el servidor de pruebas de la GRE.</dd></div></div>
+      <div><i>✓</i><div><dt>Verificado contra la beta de SUNAT</dt><dd>31 comprobantes distintos: gratuitas, ISC, exportación, dólares, descuentos globales, notas, resúmenes, retención y percepción. Y 13 guías contra el servidor de pruebas de la GRE.</dd></div></div>
       <div><i>✓</i><div><dt>Se instala en tu servidor</dt><dd>Docker y Postgres. Guía de despliegue, runbook por síntoma, respaldos que se restauran de verdad cada semana.</dd></div></div>
     </dl>
   </section>
