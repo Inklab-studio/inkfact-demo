@@ -4,44 +4,52 @@
 propio servidor. Le mandas un JSON y recibes un comprobante: el sistema que la consume
 nunca ve XML, ni UBL, ni SOAP, ni certificados.
 
-Este repositorio **no es InkFact**. Es lo que se le pone delante: un demo en HTML para
-probarla en un minuto, y dos clientes de ejemplo —PHP y Node— para copiar dentro de tu
+Este repositorio **no es InkFact**. Es lo que se le pone delante: una página para verla
+funcionar en un minuto, y dos clientes de ejemplo —PHP y Node— para copiar dentro de tu
 ERP.
 
-## Probar en dos minutos
+## Verla funcionar
 
-**Abre el demo:** [inklab-studio.github.io/inkfact-demo](https://inklab-studio.github.io/inkfact-demo/)
+**Abre la página:** [inklab-studio.github.io/inkfact-demo](https://inklab-studio.github.io/inkfact-demo/)
 
-O descárgate `index.html` y ábrelo con doble clic: es un solo fichero. Si quieres probar
-contra un InkFact en tu propia máquina (`http://localhost:3010`), tiene que ser así: una
-página en https no puede llamar a un servicio en http, el navegador lo bloquea.
+Hay dos maneras de usarla, y la primera no necesita nada:
 
-1. Abre el demo.
-2. **Conectar**: la URL de una instancia de InkFact, tu `X-Api-Key` y el secreto HMAC. La
-   página comprueba el servicio y carga **solo los emisores que esa key puede ver** —el
-   alcance por API key, delante de tus ojos—.
-3. **Emitir**: boleta o factura, en soles o dólares, con las líneas que quieras y su
-   afectación al IGV —gravado, exonerado, inafecto, gratuito—. Los totales se calculan en
-   vivo para orientar; los que valen los calcula el servidor.
-4. **Ver qué pasó**: la API contesta al instante con el número ya asignado, y la página
-   sigue el comprobante paso a paso —numerado, firmado, en cola, enviado, aceptado— con
-   el código y el mensaje exactos de SUNAT. PDF en A4 o ticket, XML firmado, CDR, y el
-   JSON tal cual llegó a la API.
-5. **Los últimos comprobantes del emisor**, con sus descargas y **Anular**: la API dice
-   primero qué va a hacer —nota de crédito o comunicación de baja, según el tipo y el
-   plazo— y luego se confirma con un motivo.
+### 1. La muestra grabada
+
+Pulsa **Ver una muestra** —o abre directamente
+[`?muestra`](https://inklab-studio.github.io/inkfact-demo/?muestra)—. La página lleva
+dentro una emisión **real**: la factura `F001-77024285`, emitida desde esta misma página
+contra la beta de SUNAT el 11 de setiembre de 2026, con las respuestas exactas de la API
+en cada estado, el historial con sus milisegundos (de la petición al CDR: 1,6 s), el libro
+con doce comprobantes reales —aceptados, anulados, pendientes de resumen— y los ficheros
+que devolvió: el PDF, el XML firmado y el CDR.
+
+No es una simulación: es una grabación, y la página lo dice en una franja que no se puede
+no ver. Todo lo que se puede hacer en vivo se puede hacer sobre la grabación —ver el
+ticket, descargar, abrir el JSON, pedir la consulta previa de anulación— menos anular de
+verdad, y eso también lo dice.
+
+### 2. Contra una instancia de InkFact
+
+Con la URL de una instancia, tu `X-Api-Key` y el secreto HMAC, **Conectar** comprueba el
+servicio y carga solo los emisores que esa key puede ver. Desde ahí emites boletas o
+facturas de verdad —en soles o dólares, con las líneas que quieras y su afectación al
+IGV—, sigues el comprobante paso a paso hasta el CDR y anulas con la consulta previa que
+decide entre nota de crédito y comunicación de baja.
 
 Todo lo que hace esta página lo hace contra la misma API que usaría tu ERP, con la misma
-firma y las mismas credenciales. Verificado contra la beta real de SUNAT: una factura
-emitida desde aquí vuelve con *"ha sido aceptada"* y su CDR.
+firma y las mismas credenciales. La instancia tiene que tener `CORS_ORIGINS` configurado
+para admitir llamadas desde un navegador. Para probar contra un InkFact en tu propia
+máquina (`http://localhost:3010`), descárgate `index.html` y ábrelo con doble clic: una
+página en https no puede llamar a un servicio en http.
 
-> Es un solo fichero, sin dependencias ni instalación. Funciona abriéndolo con doble clic
-> o servido por HTTP, en escritorio y en el móvil, en claro y en oscuro. La instancia de
-> InkFact tiene que tener `CORS_ORIGINS` configurado para admitir llamadas desde un
-> navegador.
->
-> El enlace admite `?url=`: `inklab-studio.github.io/inkfact-demo/?url=https://demo.tudominio.com`
-> deja el servidor puesto. Solo la URL; las credenciales se teclean.
+> Es un solo fichero, sin dependencias ni instalación. Tema claro por defecto, oscuro si
+> se pide; escritorio y móvil. El enlace admite `?url=https://tu-instancia` para dejar el
+> servidor puesto —solo la URL; las credenciales se teclean—, y `?muestra` para abrir la
+> grabación directamente.
+
+La misma página explica cómo se integra (la firma, con código en PHP, Node y curl), qué
+hay dentro de InkFact y cómo se compra.
 
 ## Los clientes de ejemplo
 
