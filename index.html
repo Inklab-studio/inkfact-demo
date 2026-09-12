@@ -47,6 +47,7 @@ h1, h2, h3 { margin: 0; text-wrap: balance; font-weight: 600; }
 p { margin: 0; }
 .mono { font-family: var(--mono); font-variant-numeric: tabular-nums; }
 .tenue { color: var(--ink-2); font-size: var(--t-sm); }
+.tenue a { color: var(--brand); font-weight: 500; }
 [hidden] { display: none !important; }
 :focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; border-radius: 4px; }
 
@@ -243,7 +244,7 @@ footer { max-width: 1180px; margin: 0 auto; padding: 0 20px 40px; color: var(--i
     <div class="col-izq">
       <section class="hoja" id="s-con">
         <h2>Conectar</h2>
-        <span class="tenue">Nada de lo que escribas sale de esta pestaña. El secreto nunca viaja: solo firma.</span>
+        <span class="tenue">Nada de lo que escribas sale de esta pestaña. El secreto nunca viaja: solo firma. ¿No tienes credenciales? <a href="https://github.com/Inklab-studio" id="pedir">Pídelas aquí</a> y te damos las de la instancia de demostración.</span>
         <div class="resumen-plegado"><span class="mono tenue" id="pl-url"></span><span class="estado accepted" id="pl-alcance"></span></div>
         <label for="url">URL del servicio</label>
         <input id="url" class="mono" value="http://localhost:3010" spellcheck="false" autocomplete="off">
@@ -370,6 +371,15 @@ footer { max-width: 1180px; margin: 0 auto; padding: 0 20px 40px; color: var(--i
   raiz.setAttribute('data-theme', temaGuardado || (sistemaOscuro ? 'dark' : 'light'));
   document.getElementById('tema').addEventListener('click', () => ponerTema(raiz.getAttribute('data-theme') === 'dark' ? 'light' : 'dark'));
 
+  // ================================================================ la URL del servicio
+  //
+  // Puede venir en la direccion de la pagina: demo?url=https://demo.midominio.com. Asi el
+  // enlace que se manda por WhatsApp ya trae el servidor puesto. SOLO la URL: una key en
+  // una direccion acaba en un historial de navegador, y eso no pasa por aqui.
+  const params = new URLSearchParams(location.search);
+  const urlParam = (params.get('url') || '').trim().replace(/\/+$/, '');
+  if (/^https?:\/\/[^\s]+$/.test(urlParam)) document.getElementById('url').value = urlParam;
+
   // ================================================================ utilidades
   const $ = (id) => document.getElementById(id);
   function el(tag, clase, texto) { const n = document.createElement(tag); if (clase) n.className = clase; if (texto !== undefined && texto !== null) n.textContent = String(texto); return n; }
@@ -443,6 +453,11 @@ footer { max-width: 1180px; margin: 0 auto; padding: 0 20px 40px; color: var(--i
     ocultar('con-aviso');
     if (!url || !key || !secreto) return avisar('con-aviso', 'Hacen falta la URL, la API key y el secreto.');
     if (!window.isSecureContext) return avisar('con-aviso', 'Este navegador no deja firmar desde aquí. Ábrelo desde localhost o https.');
+    // Una pagina servida por https no puede llamar a un servicio http: el navegador lo
+    // bloquea sin decir nada util. Se dice aqui, antes de que pase.
+    if (location.protocol === 'https:' && url.startsWith('http://')) {
+      return avisar('con-aviso', 'Esta página está en https y el servicio en http: el navegador bloquea esa llamada. Para probar contra un servicio local, descarga este fichero y ábrelo con doble clic; para uno en internet, ponle https.');
+    }
 
     const b = $('conectar'); cargando(b, true);
     cred = { url, key, secreto };

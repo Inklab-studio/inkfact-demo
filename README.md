@@ -10,7 +10,13 @@ ERP.
 
 ## Probar en dos minutos
 
-1. Abre `demo.html` en el navegador.
+**Abre el demo:** [inklab-studio.github.io/inkfact-demo](https://inklab-studio.github.io/inkfact-demo/)
+
+O descárgate `index.html` y ábrelo con doble clic: es un solo fichero. Si quieres probar
+contra un InkFact en tu propia máquina (`http://localhost:3010`), tiene que ser así: una
+página en https no puede llamar a un servicio en http, el navegador lo bloquea.
+
+1. Abre el demo.
 2. **Conectar**: la URL de una instancia de InkFact, tu `X-Api-Key` y el secreto HMAC. La
    página comprueba el servicio y carga **solo los emisores que esa key puede ver** —el
    alcance por API key, delante de tus ojos—.
@@ -33,6 +39,9 @@ emitida desde aquí vuelve con *"ha sido aceptada"* y su CDR.
 > o servido por HTTP, en escritorio y en el móvil, en claro y en oscuro. La instancia de
 > InkFact tiene que tener `CORS_ORIGINS` configurado para admitir llamadas desde un
 > navegador.
+>
+> El enlace admite `?url=`: `inklab-studio.github.io/inkfact-demo/?url=https://demo.tudominio.com`
+> deja el servidor puesto. Solo la URL; las credenciales se teclean.
 
 ## Los clientes de ejemplo
 
