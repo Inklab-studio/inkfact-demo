@@ -1,0 +1,20 @@
+{
+  "_": "Vectores para comprobar una implementación de la firma de InkFact sin credenciales. Los secretos son de mentira. Con estos datos tiene que salir exactamente esta firma; si no sale, el error está en tu lado. Ver INTEGRACION.md (§ 2 y § 6) y `python cliente.py --vectores`.",
+  "peticion": {
+    "algoritmo": "X-Signature = 'sha256=' + hex(hmac_sha256(secreto, timestamp + '.' + METODO + '.' + ruta + '.' + hex(sha256(cuerpo))))",
+    "secreto": "sk_demo_0123456789abcdef0123456789abcdef",
+    "timestamp": "1789000000",
+    "metodo": "POST",
+    "ruta": "/v1/comprobantes",
+    "cuerpo": "{\"emisor_ruc\":\"20601234565\",\"doc_type\":\"boleta\",\"serie\":\"B001\",\"issue_date\":\"2026-09-15\",\"customer\":{\"doc_type\":\"1\",\"doc_number\":\"45678912\",\"name\":\"MARIA QUISPE HUAMAN\"},\"items\":[{\"description\":\"Menú del día\",\"quantity\":1,\"unit_value\":12.71}]}",
+    "sha256_del_cuerpo": "a7b09582e7d0c4112ff13099dc9d4bdf0fb582acbc136033c791765d32693d8d",
+    "cadena_canonica": "1789000000.POST./v1/comprobantes.a7b09582e7d0c4112ff13099dc9d4bdf0fb582acbc136033c791765d32693d8d",
+    "x_signature": "sha256=fa0f2291267ad05e7f1f20ee7ed75728641534f6bba50ed6e92bfb52b414c830"
+  },
+  "webhook": {
+    "algoritmo": "X-Signature = 'sha256=' + hex(hmac_sha256(webhook_secret, cuerpo tal cual llegó))",
+    "secreto": "whsec_demo_fedcba9876543210fedcba9876543210",
+    "cuerpo": "{\"event\":\"comprobante.accepted\",\"id\":\"9d2f5c1e-2c9a-4b8e-9a0e-3f1c2d4e5f60\",\"full_number\":\"B001-00001247\",\"status\":\"accepted\",\"external_reference\":\"check_8f3a1b\",\"sunat_code\":\"0\",\"sunat_message\":\"La Boleta numero B001-00001247, ha sido aceptada\",\"hash\":\"kL0mZ9Y3pQ2vX8sT1uW4aB6cD7eF8gH9iJ0kL1mN2oP=\",\"xml_url\":\"https://facturacion.example.com/v1/comprobantes/9d2f5c1e-2c9a-4b8e-9a0e-3f1c2d4e5f60/xml\",\"cdr_url\":\"https://facturacion.example.com/v1/comprobantes/9d2f5c1e-2c9a-4b8e-9a0e-3f1c2d4e5f60/cdr\",\"pdf_url\":\"https://facturacion.example.com/v1/comprobantes/9d2f5c1e-2c9a-4b8e-9a0e-3f1c2d4e5f60/pdf\"}",
+    "x_signature": "sha256=e4df7578fb2d35a98f8b4b630cc09e2b3bebc2c19048cb2bc574f03675b9f474"
+  }
+}

@@ -5,8 +5,8 @@ propio servidor. Le mandas un JSON y recibes un comprobante: el sistema que la c
 nunca ve XML, ni UBL, ni SOAP, ni certificados.
 
 Este repositorio **no es InkFact**. Es lo que se le pone delante: una página para verla
-funcionar en un minuto, y dos clientes de ejemplo —PHP y Node— para copiar dentro de tu
-ERP.
+funcionar en un minuto, y tres clientes de ejemplo —PHP, Node y Python— para copiar dentro
+de tu ERP.
 
 ## Verla funcionar
 
@@ -48,8 +48,27 @@ página en https no puede llamar a un servicio en http.
 > servidor puesto —solo la URL; las credenciales se teclean—, y `?muestra` para abrir la
 > grabación directamente.
 
-La misma página explica cómo se integra (la firma, con código en PHP, Node y curl), qué
-hay dentro de InkFact y cómo se compra.
+La misma página explica cómo se integra (la firma, con código en PHP, Node, Python y
+curl), qué hay dentro de InkFact y cómo se compra.
+
+## Se conecta a cualquier sistema
+
+InkFact es una API HTTP con JSON: la consume un ERP, un POS, una tienda en línea, un SaaS
+o un sistema hecho en casa, en el lenguaje que sea. Tres cosas lo hacen fácil:
+
+- **OpenAPI 3.1 en cada instancia** (`GET /openapi.json`), generado desde las rutas y los
+  esquemas reales del servidor —no una versión "documentada" y otra "real"—. Se importa
+  en Postman o Insomnia, o se le pasa a un generador de clientes (`openapi-typescript`,
+  `openapi-generator` para Java, C#, PHP, Python, Go…).
+- **Webhooks firmados** con cada cambio de estado —comprobantes, guías, resúmenes,
+  certificado por vencer—, para que el sistema no tenga que preguntar.
+- **Vectores de firma** (`vectores-firma.json`) para comprobar tu implementación de la
+  firma HMAC sin tener todavía credenciales: con ese secreto, ese timestamp y ese cuerpo
+  tiene que salir exactamente esa firma.
+
+Con el código de InkFact va una guía de integración completa (`INTEGRACION.md`): la
+firma en siete lenguajes, idempotencia, estados, webhooks, anulación, guías, errores y
+una lista de comprobación para salir a producción.
 
 ## Los clientes de ejemplo
 
@@ -57,9 +76,11 @@ hay dentro de InkFact y cómo se compra.
 |---|---|
 | `cliente.php` | PHP plano. Sin Composer. Se copia dentro de un ERP en PHP y funciona |
 | `cliente.mjs` | Node, sin dependencias |
+| `cliente.py` | Python 3.8+, solo biblioteca estándar. `python cliente.py --vectores` comprueba la firma sin credenciales |
 
-Los dos hacen lo mismo: arman una boleta, la firman y la mandan. Lo único que tiene truco
-es la firma, y son cuatro líneas:
+Los tres hacen lo mismo: arman una boleta, la firman y la mandan. Y los tres derivan la
+misma clave de idempotencia del mismo id de venta, así que da igual desde cuál se
+reintente. Lo único que tiene truco es la firma, y son cuatro líneas:
 
 ```
 cadena  = <timestamp>.<MÉTODO>.<ruta>.<sha256hex(cuerpo)>

@@ -506,6 +506,7 @@ X-Signature = sha256=&lt;hmac-sha256(secreto, cadena)&gt;</pre>
     <div class="tabs" role="tablist" aria-label="Lenguaje">
       <button role="tab" aria-selected="true" aria-controls="cod-php" id="tab-php">PHP</button>
       <button role="tab" aria-selected="false" aria-controls="cod-node" id="tab-node" tabindex="-1">Node</button>
+      <button role="tab" aria-selected="false" aria-controls="cod-py" id="tab-py" tabindex="-1">Python</button>
       <button role="tab" aria-selected="false" aria-controls="cod-curl" id="tab-curl" tabindex="-1">curl</button>
     </div>
     <div class="panel-codigo">
@@ -535,6 +536,19 @@ const { comprobante } = await inkfact.emitir({
 
 <span class="c">// Aquí ya puedes imprimir: el correlativo está asignado. SUNAT viene después.</span>
 console.log(comprobante.full_number);   <span class="c">// B001-00001247</span></pre>
+      <pre role="tabpanel" id="cod-py" aria-labelledby="tab-py" hidden><span class="c"># cliente.py: solo biblioteca estándar, Python 3.8+. Sin pip.</span>
+inkfact = InkFact(<span class="s">'https://facturacion.tu-dominio'</span>, api_key=<span class="s">'ik_…'</span>, hmac_secret=<span class="s">'…'</span>)
+
+r = inkfact.emitir({
+    <span class="s">'emisor_ruc'</span>: <span class="s">'20553219702'</span>, <span class="s">'doc_type'</span>: <span class="s">'boleta'</span>, <span class="s">'serie'</span>: <span class="s">'B001'</span>,
+    <span class="s">'issue_date'</span>: date.today().isoformat(), <span class="s">'currency'</span>: <span class="s">'PEN'</span>, <span class="s">'operation_type'</span>: <span class="s">'0101'</span>,
+    <span class="s">'customer'</span>: {<span class="s">'doc_type'</span>: <span class="s">'1'</span>, <span class="s">'doc_number'</span>: <span class="s">'45678912'</span>, <span class="s">'name'</span>: <span class="s">'MARIA QUISPE HUAMAN'</span>},
+    <span class="s">'items'</span>: [{<span class="s">'description'</span>: <span class="s">'Menu del dia'</span>, <span class="s">'quantity'</span>: 2, <span class="s">'unit'</span>: <span class="s">'NIU'</span>, <span class="s">'unit_value'</span>: 12.7119, <span class="s">'igv_type'</span>: <span class="s">'10'</span>}],
+    <span class="s">'external_reference'</span>: <span class="s">'pedido_1234'</span>,
+}, clave_idempotencia(<span class="s">'pedido_1234'</span>))
+
+<span class="c"># Aquí ya puedes imprimir: el correlativo está asignado. SUNAT viene después.</span>
+print(r[<span class="s">'comprobante'</span>][<span class="s">'full_number'</span>])   <span class="c"># B001-00001247</span></pre>
       <pre role="tabpanel" id="cod-curl" aria-labelledby="tab-curl" hidden><span class="c"># La firma a mano: hash del cuerpo, cadena canónica, HMAC con el secreto.</span>
 BODY=<span class="s">'{"emisor_ruc":"20553219702","doc_type":"boleta","serie":"B001", … }'</span>
 TS=$(date +%s)
@@ -547,7 +561,7 @@ curl -X POST https://facturacion.tu-dominio/v1/comprobantes \
 
 <span class="c"># 202 con el correlativo ya asignado. Luego: GET /v1/comprobantes/{id}</span></pre>
     </div>
-    <p class="integrar-pie">Los dos clientes completos —con la clave de idempotencia derivada de tu pedido, la consulta y las descargas— están en el repositorio: <a href="https://github.com/Inklab-studio/inkfact-demo/blob/main/cliente.php">cliente.php</a> y <a href="https://github.com/Inklab-studio/inkfact-demo/blob/main/cliente.mjs">cliente.mjs</a>. Sin dependencias. Con el código va también una colección de Postman con 75 peticiones.</p>
+    <p class="integrar-pie">Los tres clientes completos —con la clave de idempotencia derivada de tu pedido, la consulta y las descargas— están en el repositorio: <a href="https://github.com/Inklab-studio/inkfact-demo/blob/main/cliente.php">cliente.php</a>, <a href="https://github.com/Inklab-studio/inkfact-demo/blob/main/cliente.mjs">cliente.mjs</a> y <a href="https://github.com/Inklab-studio/inkfact-demo/blob/main/cliente.py">cliente.py</a>. Sin dependencias. Para cualquier otro lenguaje, cada instancia sirve su <b>OpenAPI 3.1</b> en <span class="mono">/openapi.json</span> —generado de las rutas reales, se importa en Postman o en un generador de clientes— y los <a href="https://github.com/Inklab-studio/inkfact-demo/blob/main/vectores-firma.json">vectores de firma</a> dejan comprobar la firma sin credenciales. Con el código va también una guía de integración y una colección de Postman.</p>
   </section>
 
   <!-- ============================================================ QUÉ INCLUYE -->
