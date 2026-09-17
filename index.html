@@ -411,7 +411,7 @@ footer { margin-top: 64px; padding-top: 20px; border-top: 1px solid var(--line);
           <div>Exonerado<b id="t-exo">0.00</b></div>
           <div>Inafecto<b id="t-ina">0.00</b></div>
           <div>Gratuito<b id="t-gra">0.00</b></div>
-          <div>IGV 18 %<b id="t-igv">0.00</b></div>
+          <div>IGV <span id="t-igv-tasa">18 %</span><b id="t-igv">0.00</b></div>
           <div class="grande">Total<b id="t-total">0.00</b></div>
         </div>
         <p class="tenue" style="margin-top:8px">Orientativo. Los importes que valen los calcula el servidor con aritmética exacta y son los que van al XML.</p>
@@ -706,7 +706,7 @@ curl -X POST https://facturacion.tu-dominio/v1/comprobantes \
   function estadoConexion(clase, texto) { for (const [c, t] of [['con', 'con-texto'], ['con-mini', 'con-mini-texto']]) { $(c).className = 'con' + (clase ? ' ' + clase : ''); $(t).textContent = texto; } }
 
   const ESTADO = { numbered: 'numerado', signed: 'firmado', queued: 'en cola', sent: 'enviado', accepted: 'aceptado', observed: 'aceptado con observaciones', rejected: 'rechazado', error: 'error, se reintenta', contingency: 'contingencia', pending_summary: 'pendiente de resumen', summarized: 'en el resumen diario', voided: 'anulado' };
-  const AFECTACION = [['10', 'Gravado 18 %'], ['20', 'Exonerado'], ['30', 'Inafecto'], ['15', 'Gratuito']];
+  const AFECTACION = [['10', 'Gravado'], ['20', 'Exonerado'], ['30', 'Inafecto'], ['15', 'Gratuito']];
   const TERMINAL = ['accepted', 'observed', 'rejected', 'error', 'pending_summary', 'summarized', 'voided'];
 
   let cred = null;
@@ -824,7 +824,8 @@ curl -X POST https://facturacion.tu-dominio/v1/comprobantes \
       const activos = emisores.filter((e) => e.is_active);
       if (activos.length === 0) throw new Error('Esta API key no tiene alcance a ningún emisor activo.');
       const sel = $('emisor'); limpiar(sel);
-      for (const e of activos) { const o = el('option', null, e.ruc + ' · ' + e.business_name); o.value = e.ruc; sel.appendChild(o); }
+      emisoresPorRuc = {};
+      for (const e of activos) { emisoresPorRuc[e.ruc] = e; const o = el('option', null, e.ruc + ' · ' + e.business_name); o.value = e.ruc; sel.appendChild(o); }
       estadoConexion('ok', 'Conectado');
       $('con-nota').textContent = 'servicio ' + salud.status + ' · ' + salud.environment;
       $('pl-url').textContent = url.replace(/^https?:\/\//, '');
@@ -852,7 +853,8 @@ curl -X POST https://facturacion.tu-dominio/v1/comprobantes \
     ocultar('con-aviso'); ocultar('em-aviso');
     const final = GRAB.polls[GRAB.polls.length - 1];
     const sel = $('emisor'); limpiar(sel);
-    for (const e of GRAB.emisores.emisores) { const o = el('option', null, e.ruc + ' · ' + e.business_name); o.value = e.ruc; sel.appendChild(o); }
+    emisoresPorRuc = {};
+    for (const e of GRAB.emisores.emisores) { emisoresPorRuc[e.ruc] = e; const o = el('option', null, e.ruc + ' · ' + e.business_name); o.value = e.ruc; sel.appendChild(o); }
     estadoConexion('muestra', 'Muestra grabada');
     $('con-nota').textContent = '';
     $('pl-url').textContent = 'grabación del ' + fecha(GRAB.emitida_el);
@@ -935,10 +937,22 @@ curl -X POST https://facturacion.tu-dominio/v1/comprobantes \
       l._fila.children[4].textContent = dinero(v);
       if (l.igv_type === '10') grav += v; else if (l.igv_type === '20') exo += v; else if (l.igv_type === '30') ina += v; else gra += v;
     }
-    const igv = grav * 0.18, total = grav + exo + ina + igv;
+    // La tasa es la del emisor elegido: 18 en general, 10.5 en un restaurante u hotel MYPE
+    // (Ley 31556). El servidor calcula con la misma; la vista previa no puede suponer 18.
+    const tasa = tasaDelEmisor();
+    $('t-igv-tasa').textContent = tasa + ' %';
+    const igv = grav * tasa / 100, total = grav + exo + ina + igv;
     $('t-grav').textContent = dinero(grav); $('t-exo').textContent = dinero(exo); $('t-ina').textContent = dinero(ina);
     $('t-gra').textContent = dinero(gra); $('t-igv').textContent = dinero(igv); $('t-total').textContent = dinero(total); $('b-total').textContent = dinero(total);
   }
+
+  let emisoresPorRuc = {};
+  function tasaDelEmisor() {
+    const e = emisoresPorRuc[$('emisor').value];
+    const tasa = e && parseFloat(e.igv_rate);
+    return tasa > 0 ? tasa : 18;
+  }
+  $('emisor').addEventListener('change', totales);
 
   $('emitir').addEventListener('click', emitir);
   $('b-emitir').addEventListener('click', emitir);
