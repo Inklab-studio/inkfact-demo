@@ -101,7 +101,7 @@ certificados cifrados en reposo, informe de fiscalización.
 **Multiempresa:** cada RUC con su certificado, su ambiente y sus series. Alcance por API
 key: la llave de un ERP solo ve sus propios RUC.
 
-**Verificada contra SUNAT**: en producción con un negocio real, y en 50 casos del ambiente de
+**Verificada contra SUNAT**: en producción con un negocio real, y en 130 casos del ambiente de
 pruebas, todos aceptados sin observaciones —incluidos gratuitas, ISC, exportación, moneda
 extranjera, descuentos globales, crédito en cuotas, detracción, retención, percepción,
 anticipos, bolsas, IVAP y Amazonía, dentro de facturas, notas y resúmenes—, y 17 guías de remisión, de remitente y de
