@@ -19,7 +19,7 @@ Hay dos maneras de usarla, y la primera no necesita nada:
 Pulsa **Ver una muestra** —o abre directamente
 [`?muestra`](https://inklab-studio.github.io/inkfact-demo/?muestra)—. La página lleva
 dentro una emisión **real**: la factura `F001-77024285`, emitida desde esta misma página
-contra la beta de SUNAT el 11 de setiembre de 2026, con las respuestas exactas de la API
+contra el ambiente de pruebas de SUNAT el 11 de setiembre de 2026, con las respuestas exactas de la API
 en cada estado, el historial con sus milisegundos (de la petición al CDR: 1,6 s), el libro
 con doce comprobantes reales —aceptados, anulados, pendientes de resumen— y los ficheros
 que devolvió: el PDF, el XML firmado y el CDR.
@@ -101,9 +101,10 @@ certificados cifrados en reposo, informe de fiscalización.
 **Multiempresa:** cada RUC con su certificado, su ambiente y sus series. Alcance por API
 key: la llave de un ERP solo ve sus propios RUC.
 
-**Verificada contra el ambiente beta de SUNAT** en 31 comprobantes distintos —incluidos
-gratuitas, ISC, exportación, moneda extranjera y descuentos globales, dentro de facturas,
-notas, resúmenes, retención y percepción—, y 17 guías de remisión, de remitente y de
+**Verificada contra SUNAT**: en producción con un negocio real, y en 42 casos del ambiente de
+pruebas —incluidos gratuitas, ISC, exportación, moneda extranjera, descuentos globales,
+crédito en cuotas, detracción, anticipos y bolsas, dentro de facturas, notas, resúmenes,
+retención y percepción—, y 17 guías de remisión, de remitente y de
 transportista, contra el servidor de pruebas de la GRE.
 
 ## Cómo se compra

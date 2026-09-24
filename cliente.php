@@ -173,7 +173,7 @@ final class InkFact
 
 $inkfact = new InkFact(
     baseUrl: getenv('INKFACT_URL') ?: 'http://localhost:3010',
-    apiKey: getenv('INKFACT_API_KEY') ?: 'ik_beta_...',
+    apiKey: getenv('INKFACT_API_KEY') ?: 'ik_test_...',
     hmacSecret: getenv('INKFACT_HMAC_SECRET') ?: '...',
 );
 
