@@ -571,7 +571,7 @@ curl -X POST https://facturacion.tu-dominio/v1/comprobantes \
       <p>Lo que hace falta para facturar ante SUNAT desde cualquier ERP, y lo que hace falta para seguir operándolo el mes que viene.</p>
     </div>
     <dl class="incluye">
-      <div><i>✓</i><div><dt>Boletas y facturas</dt><dd>Notas de crédito y débito, resumen diario de boletas, comunicación de baja, retención y percepción. Anular decide solo cuál toca según el tipo y el plazo.</dd></div></div>
+      <div><i>✓</i><div><dt>Boletas y facturas</dt><dd>Notas de crédito y débito, resumen diario de boletas, comunicación de baja, retención, percepción y liquidación de compra. Anular decide solo cuál toca según el tipo y el plazo: baja, nota de crédito o reversión.</dd></div></div>
       <div><i>✓</i><div><dt>Crédito, detracción, anticipos y bolsas</dt><dd>Factura al crédito en cuotas, detracción con el porcentaje y el monto que pone el sistema, factura final que descuenta los anticipos, e impuesto a las bolsas de plástico (ICBPER).</dd></div></div>
       <div><i>✓</i><div><dt>Todos los regímenes y casos especiales</dt><dd>NRUS, RER, MYPE y General. Las 18 afectaciones del IGV, todos los tipos de operación de factura y boleta (exportación, hospedaje a extranjeros, gastos deducibles, Tax Free, detracción de pesca y transporte, créditos y seguros), los 13 motivos de nota de crédito y los 5 de débito, retención, percepción e IVAP.</dd></div></div>
       <div><i>✓</i><div><dt>Consultas de RUC, DNI y validez</dt><dd>Los 18,4 millones de RUC del padrón de SUNAT en tu propia base, al instante y sin pagar a terceros, actualizados solos cada semana. Y la validez de cualquier comprobante —el tuyo o el de un proveedor— preguntada a SUNAT.</dd></div></div>
@@ -584,7 +584,7 @@ curl -X POST https://facturacion.tu-dominio/v1/comprobantes \
       <div><i>✓</i><div><dt>Multiempresa</dt><dd>Cada RUC con su certificado, su ambiente y sus series. Una API key solo ve los RUC de su alcance.</dd></div></div>
       <div><i>✓</i><div><dt>Certificados cifrados en reposo</dt><dd>Nunca en el repositorio, nunca en variables de entorno, nunca en logs. Aviso 30 días antes de que venzan.</dd></div></div>
       <div><i>✓</i><div><dt>Panel y fiscalización</dt><dd>Documentos por estado, errores, vencimientos. Un informe mensual busca huecos de numeración y comprobantes sin respaldo.</dd></div></div>
-      <div><i>✓</i><div><dt>Verificado contra SUNAT</dt><dd>En producción, con un negocio real facturando. Y 130 casos en el ambiente de pruebas de SUNAT, todos aceptados sin observaciones: gratuitas, ISC, exportación, dólares, descuentos globales, crédito, detracción, retención, percepción, anticipos, bolsas, IVAP, Amazonía, notas y resúmenes. Y 17 guías —de remitente y de transportista— contra el servidor de pruebas de la GRE.</dd></div></div>
+      <div><i>✓</i><div><dt>Verificado contra SUNAT</dt><dd>En producción, con un negocio real facturando. Y 144 casos en el ambiente de pruebas de SUNAT, todos aceptados sin observaciones: gratuitas, ISC, exportación, dólares, descuentos globales, crédito, detracción, retención, percepción, anticipos, bolsas, IVAP, Amazonía, liquidaciones de compra, notas, resúmenes y reversiones. Y 17 guías —de remitente y de transportista— contra el servidor de pruebas de la GRE.</dd></div></div>
       <div><i>✓</i><div><dt>Se instala en tu servidor</dt><dd>Docker y Postgres. Guía de despliegue, runbook por síntoma, respaldo diario que se restaura de verdad para comprobarlo.</dd></div></div>
     </dl>
   </section>

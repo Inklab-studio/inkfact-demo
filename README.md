@@ -93,7 +93,7 @@ de valer.
 ## Qué hace InkFact
 
 Boletas, facturas, notas de crédito y débito, resumen diario de boletas, comunicación de
-baja, retención y percepción, guías de remisión de remitente y de transportista (la baja,
+baja, retención, percepción, liquidación de compra y su reversión, guías de remisión de remitente y de transportista (la baja,
 que SUNAT solo admite en SOL, se registra). Correlativos sin carreras, idempotencia, cola
 con reintentos y modo contingencia, webhooks firmados, PDF con QR, panel de monitoreo,
 certificados cifrados en reposo, informe de fiscalización.
@@ -101,10 +101,11 @@ certificados cifrados en reposo, informe de fiscalización.
 **Multiempresa:** cada RUC con su certificado, su ambiente y sus series. Alcance por API
 key: la llave de un ERP solo ve sus propios RUC.
 
-**Verificada contra SUNAT**: en producción con un negocio real, y en 130 casos del ambiente de
+**Verificada contra SUNAT**: en producción con un negocio real, y en 144 casos del ambiente de
 pruebas, todos aceptados sin observaciones —incluidos gratuitas, ISC, exportación, moneda
 extranjera, descuentos globales, crédito en cuotas, detracción, retención, percepción,
-anticipos, bolsas, IVAP y Amazonía, dentro de facturas, notas y resúmenes—, y 17 guías de remisión, de remitente y de
+anticipos, bolsas, IVAP, Amazonía y liquidaciones de compra, dentro de facturas, notas,
+resúmenes y reversiones—, y 17 guías de remisión, de remitente y de
 transportista, contra el servidor de pruebas de la GRE.
 
 ## Cómo se compra
