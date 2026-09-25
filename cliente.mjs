@@ -154,7 +154,9 @@ if (import.meta.url === pathToFileURL(process.argv[1] ?? '').href) {
       emisor_ruc: process.env.INKFACT_RUC ?? '20553219702',
       doc_type: 'boleta',
       serie: 'B001',
-      issue_date: new Date().toISOString().slice(0, 10),
+      // La fecha de Lima, no la UTC: a partir de las 19:00 la UTC ya es mañana y SUNAT
+      // rechaza una fecha futura.
+      issue_date: new Date().toLocaleDateString('en-CA', { timeZone: 'America/Lima' }),
       currency: 'PEN',
       operation_type: '0101',
       customer: {

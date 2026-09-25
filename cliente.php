@@ -183,7 +183,8 @@ $respuesta = $inkfact->emitir([
     'emisor_ruc' => '20553219702',
     'doc_type' => 'boleta',
     'serie' => 'B001',
-    'issue_date' => date('Y-m-d'),
+    // La fecha de Lima, sea cual sea la zona horaria del servidor.
+    'issue_date' => (new DateTime('now', new DateTimeZone('America/Lima')))->format('Y-m-d'),
     'currency' => 'PEN',
     'operation_type' => '0101',
     'customer' => [

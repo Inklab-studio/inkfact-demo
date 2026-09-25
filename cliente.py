@@ -34,7 +34,7 @@ import os
 import sys
 import time
 import uuid
-from datetime import date
+from datetime import datetime, timedelta, timezone
 from typing import Any, Optional
 from urllib import error, parse, request
 
@@ -224,7 +224,8 @@ if __name__ == "__main__":
                 "emisor_ruc": os.environ.get("INKFACT_RUC", "20553219702"),
                 "doc_type": "boleta",
                 "serie": "B001",
-                "issue_date": date.today().isoformat(),
+                # La fecha de Lima (UTC-5 todo el año), sea cual sea la del servidor.
+                "issue_date": datetime.now(timezone(timedelta(hours=-5))).date().isoformat(),
                 "currency": "PEN",
                 "operation_type": "0101",
                 "customer": {
