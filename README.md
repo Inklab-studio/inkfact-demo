@@ -98,6 +98,10 @@ que SUNAT solo admite en SOL, se registra). Correlativos sin carreras, idempoten
 con reintentos y modo contingencia, webhooks firmados, PDF con QR, panel de monitoreo,
 certificados cifrados en reposo, informe de fiscalización.
 
+**Se conecta a cualquier sistema:** JSON por HTTPS, con validación sin emitir para probar
+la integración y llaves sin firma para los sistemas que no pueden firmar. **Se instala en un
+comando**, con HTTPS automático.
+
 **Multiempresa:** cada RUC con su certificado, su ambiente y sus series. Alcance por API
 key: la llave de un ERP solo ve sus propios RUC.
 
